@@ -43,7 +43,7 @@ def select_from_record(start, end):
     conn = sqlite3.connect(db)
     cur = conn.cursor()
     cur.execute(
-        "select * from record where timestamp between ? and ?", (start, end))
+        "select * from record where timestamp between ? and ? order by timestamp", (start, end))
     return cur.fetchall()
 
 
@@ -51,7 +51,7 @@ def select_from_record_filter(start, end, processfilter):
     conn = sqlite3.connect(db)
     cur = conn.cursor()
     cur.execute(
-        "select * from record where pname=? and timestamp between ? and ? ", (processfilter, start, end))
+        "select * from record where pname=? and timestamp between ? and ? order by timestamp", (processfilter, start, end))
     return cur.fetchall()
 
 

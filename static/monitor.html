@@ -216,7 +216,7 @@
                                    :label="k"
                                    :value="k"></el-option>
                       </el-select>
-                      <el-input size="mini" v-model="processfilter" style="width: 200px;"></el-input>
+                      <el-input size="mini" v-model="processfilter" style="width: 200px;" clearable ></el-input>
                     <el-button  type="primary" size="mini" icon="el-icon-refresh" :loading="querying" @click="query_range()">刷新</el-button></span>
                 </div>
                 <div id="container" style="height: 500px"></div>
@@ -248,7 +248,6 @@
             var r = pid % 16
             var g = (pid + 7 * pid) % 16
             var b = (pid + 7 * pid) % 16
-            console.log(r, g, b)
             return '#' + cs[r] + '' + cs[g] + '' + cs[b];
         }
 
@@ -283,8 +282,16 @@
 
         function exist(s, val) {
             for (i in val) {
-                console.log(s, s.name, val[i].pid)
                 if (s.name == val[i].pid) {
+                    return true
+                }
+            }
+            return false
+        }
+
+        function table_exist(s, val) {
+            for (i in val) {
+                if (s == val[i].pid) {
                     return true
                 }
             }
@@ -317,6 +324,8 @@
                     "Last 1 hour": 60,
                     "Last 2 hour": 2 * 60,
                     "Last 3 hour": 3 * 60,
+                    "Last 5 hour": 5 * 60,
+                    "Last 1 day": 24 * 60,
                 }
             },
             mounted() {
@@ -419,8 +428,31 @@
             vm.allowedRun = editor.getValue().trim() && (vm.selectHostNodes.length > 0 || vm.selectGroupNodes.length > 0)
         }
 
+        function formatdate(value) {
+            let fmt = "YYYY-mm-dd HH:MM:SS";
+            var date = new Date(value);
+            let ret;
+            const opt = {
+                "Y+": date.getFullYear().toString(), // 年
+                "m+": (date.getMonth() + 1).toString(), // 月
+                "d+": date.getDate().toString(), // 日
+                "H+": date.getHours().toString(), // 时
+                "M+": date.getMinutes().toString(), // 分
+                "S+": date.getSeconds().toString() // 秒
+            };
+            for (let k in opt) {
+                ret = new RegExp("(" + k + ")").exec(fmt);
+                if (ret) {
+                    fmt = fmt.replace(ret[1], (ret[1].length == 1) ? (opt[k]) : (opt[k].padStart(ret[1].length, "0")))
+                };
+            };
+            return fmt
+        }
 
-        var tms = new Set()
+
+        var tms = []
+        var last = 0
+        var pids = new Set()
         var option = null
         var seriesfull = []
         var dom = document.getElementById("container");
@@ -428,27 +460,30 @@
 
         function handle_process_data(data) {
             var data_map = {}
-            tms = new Set()
+            tms = []
+            pids = new Set()
             vm.tableData = []
             for (d in data) {
                 t = data[d][0] * 1000
                 pid = data[d][1]
                 pname = data[d][2]
                 mem = data[d][3]
-                if (!tms.has(t)) {
-                    tms.add(t)
+                if (last != t) {
+                    tms.push(t)
+                    last = t
                 }
                 if (!data_map[pid]) {
                     data_map[pid] = []
                 }
                 data_map[pid].push([t, mem])
-                vm.tableData.push({
-                    pid: pid,
-                    pname: pname
-                })
+                if (!pids.has(pid)) {
+                    vm.tableData.push({
+                        pid: pid,
+                        pname: pname
+                    })
+                    pids.add(pid)
+                }
             }
-            console.log(tms)
-
             // gen seris
             var series = []
 
@@ -481,6 +516,18 @@
             option = {
                 tooltip: {
                     trigger: 'axis',
+                    formatter: (params) => {
+                        params.sort(function(a, b) {
+                            return b.data[1] - a.data[1]
+                        })
+                        var d = []
+                        d.push(formatdate(params[0].axisValue) + '<br>')
+                        params.forEach(e => {
+                            d.push('<span style="display:inline-block;margin-right:5px;border-radius:10px;width:10px;height:10px;background-color:' + e.color + ';"></span> ' + e.seriesName + ' : ' + e.data[1])
+                        })
+                        return d.join('<br>')
+                    },
+                    extraCssText: 'box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);',
                     position: function(pt) {
                         return [pt[0], '10%'];
                     }
@@ -501,7 +548,13 @@
                 xAxis: {
                     type: 'time',
                     boundaryGap: false,
-                    data: tms
+                    interval: vm.lastTimeOptions[vm.lastTimeOption] * 6 * 1000,
+                    data: tms,
+                    axisLabel: {
+                        formatter: function(value, index) {
+                            return formatdate(value);
+                        }
+                    }
                 },
                 yAxis: {
                     type: 'value',
