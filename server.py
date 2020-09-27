@@ -22,9 +22,9 @@ class StandaloneApplication(gunicorn.app.base.BaseApplication):
         super(StandaloneApplication, self).__init__()
 
     def load_config(self):
-        config = dict([(key, value) for key, value in iteritems(self.options)
+        config = dict([(key, value) for key, value in enumerate(self.options)
                        if key in self.cfg.settings and value is not None])
-        for key, value in iteritems(config):
+        for key, value in enumerate(config):
             self.cfg.set(key.lower(), value)
 
     def load(self):
