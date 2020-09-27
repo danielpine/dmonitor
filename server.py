@@ -1,39 +1,75 @@
-from flask import Flask
-app = Flask(__name__,static_url_path='')
- 
+import os
+import logging
+import time
+from data import select_from_record
+from data import select_from_record_filter
+from flask import (Flask, Response, escape, jsonify, redirect, request,
+                   session, url_for)
+from geventwebsocket.server import WSGIServer
+from geventwebsocket.handler import WebSocketHandler
+
+logging.basicConfig(level=logging.DEBUG,
+                    format='%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s')
+log = logging.getLogger()
+app = Flask(__name__, static_url_path='')
+app.config['DEBUG'] = True
+user_socket_list = []
+
+
+@app.route('/orange')
+def orange():
+    user_socket = request.environ.get('wsgi.websocket')
+    log.info('request %s', request)
+    log.info('user_socket %s', user_socket)
+    if user_socket:
+        user_socket_list.append(user_socket)
+        log.info('user_socket_list depth %s', len(user_socket_list))
+    while True:
+        try:
+            msg = user_socket.receive()
+            log.info('received: %s', msg)
+            for sock in user_socket_list:
+                try:
+                    sock.send('received: %s' + msg)
+                except:
+                    continue
+        except Exception as e:
+            log.info(e)
+            if user_socket and user_socket in user_socket_list:
+                user_socket_list.remove(user_socket)
+            return ''
+
+
 @app.route('/')
-def hello_world():
+def index():
     return app.send_static_file('index.html')
- 
-import gunicorn.app.base
 
 
-class StandaloneApplication(gunicorn.app.base.BaseApplication):
-    """
-    Custom application
-    """
-
-    def init(self, parser, opts, args):
-        pass
-
-    def __init__(self, app, options=None):
-        self.options = options or {}
-        self.application = app
-        super(StandaloneApplication, self).__init__()
-
-    def load_config(self):
-        config = dict([(key, value) for key, value in  self.options.items()
-                       if key in self.cfg.settings and value is not None])
-        for key, value in  config.items():
-            self.cfg.set(key.lower(), value)
-
-    def load(self):
-        return self.application
+@app.route('/query_range')
+def query_range():
+    parm = request.args.to_dict()
+    start = parm.get('start')
+    processfilter = parm.get('processfilter')
+    now = time.time()
+    if start is None:
+        start = now - 300
+    end = parm.get('end')
+    if end is None:
+        end = now
+    if processfilter and len(processfilter.strip()) > 0:
+        return jsonify(select_from_record_filter(start, end, processfilter))
+    else:
+        return jsonify(select_from_record(start, end))
 
 
 if __name__ == "__main__":
-    options = {
-        "bind": "0.0.0.0:5000"
-    }
-    StandaloneApplication(app, options=options).run()
- 
+    logging.getLogger('PokeAlarm').setLevel(logging.INFO)
+    logging.getLogger('requests').setLevel(logging.INFO)
+    logging.getLogger('pyswgi').setLevel(logging.INFO)
+    logging.getLogger('connectionpool').setLevel(logging.INFO)
+    logging.getLogger('gipc').setLevel(logging.INFO)
+    logging.getLogger("urllib3").setLevel(logging.INFO)
+    log.info(u'Started.')
+    srv = WSGIServer(('0.0.0.0', 5000), app,
+                     handler_class=WebSocketHandler, log=log)
+    srv.serve_forever()

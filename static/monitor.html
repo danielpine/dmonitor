@@ -188,29 +188,69 @@
     </style>
 </head>
 
-<body style="background: black;">
+<body style="background: azure;">
     <script src="lib/vue/vue.js"></script>
     <script src="lib/element-ui/index.js"></script>
     <script src="js/jquery-2.1.1.min.js"></script>
     <script src="js/ace.js"></script>
     <script src="js/ext-language_tools.js"></script>
     <script src="js/ace.hint.js"></script>
+    <script type="text/javascript" src="js/echarts.min.js"></script>
+    <script type="text/javascript" src="js/echarts-gl.min.js"></script>
+    <script type="text/javascript" src="js/ecStat.min.js"></script>
+    <script type="text/javascript" src="js/dataTool.min.js"></script>
+    <script type="text/javascript" src="js/china.js"></script>
+    <script type="text/javascript" src="js/world.js"></script>
     <div id="app" v-cloak>
         <el-container>
             <el-main style="padding: 0;">
                 <div id="title" style="background: lightgray;">
-                    <span>Monitor</span>
+                    <span>Monitor
+                    <el-select size="mini"
+                                 style="width: 246px;"
+                                 v-model="lastTimeOption"
+                                 placeholder=""
+                                 v-on:change=query_range>
+                        <el-option v-for="v,k in lastTimeOptions"
+                                   :key="k"
+                                   :label="k"
+                                   :value="k"></el-option>
+                      </el-select>
+                      <el-input size="mini" v-model="processfilter" style="width: 200px;"></el-input>
+                    <el-button  type="primary" size="mini" icon="el-icon-refresh" :loading="querying" @click="query_range()">刷新</el-button></span>
                 </div>
-                <div>
-                    <el-row>
-                        monitors
-                    </el-row>
-                </div>
+                <div id="container" style="height: 500px"></div>
+                <el-table ref="multipleTable" :data="tableData" tooltip-effect="dark" style="width: 100%" max-height="250" @selection-change="handleSelectionChange">
+                    <el-table-column type="selection" width="55">
+                    </el-table-column>
+                    <el-table-column type="index" label="#" width="100">
+                    </el-table-column>
+                    <el-table-column prop="pid" label="PID" width="120" sortable>
+                    </el-table-column>
+                    <el-table-column prop="pname" label="PNAME" width="300" sortable>
+                    </el-table-column>
+                </el-table>
             </el-main>
         </el-container>
     </div>
     <script>
         var webSocket
+
+        var cs = '0123456789abcdef'.split('')
+
+        function randomColor() {
+            return '#' + '0123456789abcdef'.split('').map(function(v, i, a) {
+                return i > 5 ? null : a[Math.floor(Math.random() * 16)]
+            }).join('');
+        }
+
+        function genColorByPid(pid) {
+            var r = pid % 16
+            var g = (pid + 7 * pid) % 16
+            var b = (pid + 7 * pid) % 16
+            console.log(r, g, b)
+            return '#' + cs[r] + '' + cs[g] + '' + cs[b];
+        }
 
         function initWebSocket() {
             webSocket.onopen = webSocketOpen;
@@ -230,23 +270,7 @@
         }
 
         function webSocketMessage(e) {
-            let respMsgJson = JSON.parse(e.data);
-            console.log(respMsgJson)
-            switch (respMsgJson['respType']) {
-                case 10001: // 请求hosts
-                    vm.hostNodes = respMsgJson.data
-                    break
-                case 10002: // 请求groups
-                    vm.groupNodes = respMsgJson.data
-                    break
-                case 10003: // 执行命令
-                    vm.hostsOutput = respMsgJson.hosts ? respMsgJson.hosts : []
-                    vm.groupsOutput = respMsgJson.groups ? respMsgJson.groups : []
-                    break
-                default:
-                    console.log(e)
-                    break
-            }
+            console.log(e.data)
         }
 
         function webSocketClose() {
@@ -255,6 +279,16 @@
 
         function webSocketError() {
             console.log("WebSocket连接失败");
+        }
+
+        function exist(s, val) {
+            for (i in val) {
+                console.log(s, s.name, val[i].pid)
+                if (s.name == val[i].pid) {
+                    return true
+                }
+            }
+            return false
         }
 
         // Vue.js
@@ -268,12 +302,26 @@
                 selectGroupNodes: [],
                 groupsOutput: [],
                 executing: false,
+                querying: false,
                 allowedRun: false,
                 theme: 'white',
-                useWebSocket: true
+                useWebSocket: true,
+                tableData: [],
+                multipleSelection: [],
+                processfilter: "Code.exe",
+                lastTimeOption: "Last 5 minutes",
+                lastTimeOptions: {
+                    "Last 5 minutes": 5,
+                    "Last 15 minutes": 15,
+                    "Last 30 minutes": 30,
+                    "Last 1 hour": 60,
+                    "Last 2 hour": 2 * 60,
+                    "Last 3 hour": 3 * 60,
+                }
             },
             mounted() {
                 window.parent.vm.loading = false
+                this.query_range()
             },
             created() {
                 if ('WebSocket' in window) {
@@ -287,6 +335,28 @@
                 }
             },
             methods: {
+                toggleSelection(rows) {
+                    if (rows) {
+                        rows.forEach(row => {
+                            this.$refs.multipleTable.toggleRowSelection(row);
+                        });
+                    } else {
+                        this.$refs.multipleTable.clearSelection();
+                    }
+                },
+                handleSelectionChange(val) {
+                    this.multipleSelection = val;
+                    if (option && typeof option === "object") {
+                        var series = []
+                        for (s in seriesfull) {
+                            if (exist(seriesfull[s], val)) {
+                                series.push(seriesfull[s])
+                            }
+                        }
+                        option.series = series
+                        myChart.setOption(option, true);
+                    }
+                },
                 handleHostSelectionChange(val) {
                     vm.selectHostNodes = val
                     console.log(vm.selectHostNodes)
@@ -299,6 +369,26 @@
                 },
                 checkSelectable(row, index) {
                     return row.status == 1
+                },
+                query_range() {
+                    var now = parseInt(new Date().getTime() / 1000)
+                    var vmm = this
+                    this.querying = true
+                    $.ajax({
+                        type: 'GET',
+                        url: '/query_range' + '?start=' + (now - vmm.lastTimeOptions[vmm.lastTimeOption] * 60) + '&end=' + now + '&processfilter=' + vmm.processfilter,
+                        async: true,
+                        cache: false,
+                        error: function(request) {
+                            vmm.notification(vm.$t('msg.data_loading_error'), vm.$t(
+                                'msg.net_error'), 'bottom-right', 'error')
+                        },
+                        success: function(res) {
+                            handle_process_data(res)
+                            vmm.querying = false
+                        },
+                        dataType: 'json'
+                    })
                 },
                 send: function() {
                     let data = {
@@ -327,6 +417,118 @@
 
         function checkAllowedRun() {
             vm.allowedRun = editor.getValue().trim() && (vm.selectHostNodes.length > 0 || vm.selectGroupNodes.length > 0)
+        }
+
+
+        var tms = new Set()
+        var option = null
+        var seriesfull = []
+        var dom = document.getElementById("container");
+        var myChart = echarts.init(dom);
+
+        function handle_process_data(data) {
+            var data_map = {}
+            tms = new Set()
+            vm.tableData = []
+            for (d in data) {
+                t = data[d][0] * 1000
+                pid = data[d][1]
+                pname = data[d][2]
+                mem = data[d][3]
+                if (!tms.has(t)) {
+                    tms.add(t)
+                }
+                if (!data_map[pid]) {
+                    data_map[pid] = []
+                }
+                data_map[pid].push([t, mem])
+                vm.tableData.push({
+                    pid: pid,
+                    pname: pname
+                })
+            }
+            console.log(tms)
+
+            // gen seris
+            var series = []
+
+
+            for (pid in data_map) {
+                var c = genColorByPid(pid)
+                var ss = {
+                    name: pid,
+                    type: 'line',
+                    smooth: true,
+                    symbol: 'none',
+                    sampling: 'average',
+                    itemStyle: {
+                        color: c
+                    },
+                    areaStyle: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                            offset: 0,
+                            color: c
+                        }, {
+                            offset: 1,
+                            color: c
+                        }])
+                    },
+                    data: data_map[pid]
+                }
+                series.push(ss)
+                seriesfull.push(ss)
+            }
+            option = {
+                tooltip: {
+                    trigger: 'axis',
+                    position: function(pt) {
+                        return [pt[0], '10%'];
+                    }
+                },
+                title: {
+                    left: 'center',
+                    text: 'Memory Used For Every Process',
+                },
+                toolbox: {
+                    feature: {
+                        dataZoom: {
+                            yAxisIndex: 'none'
+                        },
+                        restore: {},
+                        saveAsImage: {}
+                    }
+                },
+                xAxis: {
+                    type: 'time',
+                    boundaryGap: false,
+                    data: tms
+                },
+                yAxis: {
+                    type: 'value',
+                    boundaryGap: [0, '100%']
+                },
+                dataZoom: [{
+                    type: 'inside',
+                    // start: 0,
+                    // end: 10
+                }, {
+                    start: 0,
+                    end: 10,
+                    handleIcon: 'M10.7,11.9v-1.3H9.3v1.3c-4.9,0.3-8.8,4.4-8.8,9.4c0,5,3.9,9.1,8.8,9.4v1.3h1.3v-1.3c4.9-0.3,8.8-4.4,8.8-9.4C19.5,16.3,15.6,12.2,10.7,11.9z M13.3,24.4H6.7V23h6.6V24.4z M13.3,19.6H6.7v-1.4h6.6V19.6z',
+                    handleSize: '80%',
+                    handleStyle: {
+                        color: '#000',
+                        shadowBlur: 3,
+                        shadowColor: 'rgba(0, 0, 0, 0.6)',
+                        shadowOffsetX: 2,
+                        shadowOffsetY: 2
+                    }
+                }],
+                series: series
+            }
+            if (option && typeof option === "object") {
+                myChart.setOption(option, true);
+            }
         }
     </script>
 </body>
