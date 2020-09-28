@@ -12,6 +12,8 @@ pip install pyinstaller
 
 pip install gevent
 
+pip install psutil
+
 pip install gevent-websocket
 
 pip install apscheduler
