@@ -29,6 +29,7 @@ def request_update_status():
     log.info(tms)
     for p in psutil.process_iter():
         # log.info("pid : %s pname: %s mem: %10f kb" ,p.pid, p.name(), get_mem_size(p))
+        # p.cpu_percent()
         data.append((tms, p.pid, p.name(), get_mem_size(p)))
     log.info('inserting')
     insert_many_to_record(data)
