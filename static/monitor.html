@@ -329,8 +329,9 @@
                 }
             },
             mounted() {
-                window.parent.vm.loading = false
-                this.query_range()
+                this.query_range(function() {
+                    window.parent.vm.loading = false
+                })
             },
             created() {
                 if ('WebSocket' in window) {
@@ -379,7 +380,7 @@
                 checkSelectable(row, index) {
                     return row.status == 1
                 },
-                query_range() {
+                query_range(callback) {
                     var now = parseInt(new Date().getTime() / 1000)
                     var vmm = this
                     this.querying = true
@@ -395,6 +396,7 @@
                         success: function(res) {
                             handle_process_data(res)
                             vmm.querying = false
+                            callback()
                         },
                         dataType: 'json'
                     })
