@@ -396,7 +396,8 @@
                         success: function(res) {
                             handle_process_data(res)
                             vmm.querying = false
-                            callback()
+                            if (callback)
+                                callback()
                         },
                         dataType: 'json'
                     })
