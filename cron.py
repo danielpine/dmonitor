@@ -1,3 +1,4 @@
+from logging import shutdown
 import time
 import psutil
 import logging
@@ -5,8 +6,10 @@ from data import insert_many_to_record
 from data import create_table_record
 from apscheduler.schedulers.blocking import BlockingScheduler
 
-logging.basicConfig(level=logging.INFO,
-                    format='%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s')
+logging.basicConfig(
+    level=logging.INFO,
+    format=
+    '%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s')
 log = logging.getLogger()
 
 scheduler = BlockingScheduler()
@@ -17,7 +20,7 @@ def get_mem_size(process):
     return mem_info.rss / 1024
 
 
-@scheduler.scheduled_job('cron', second='*/15',max_instances=5)
+@scheduler.scheduled_job('cron', second='*/15', max_instances=5)
 def request_update_status():
     print(int(time.time()), 'Doing job')
     data = []
@@ -31,5 +34,9 @@ def request_update_status():
     insert_many_to_record(data)
     log.info('inserted')
 
-create_table_record()
-scheduler.start()
+
+def start():
+    create_table_record()
+    scheduler.start()
+def shutdown():
+    scheduler.shutdown()

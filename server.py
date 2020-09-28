@@ -1,15 +1,20 @@
 import os
 import logging
 import time
+import threading
 from data import select_from_record
 from data import select_from_record_filter
 from flask import (Flask, Response, escape, jsonify, redirect, request,
                    session, url_for)
 from geventwebsocket.server import WSGIServer
 from geventwebsocket.handler import WebSocketHandler
+from cron import start
+from cron import shutdown
 
-logging.basicConfig(level=logging.DEBUG,
-                    format='%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s')
+logging.basicConfig(
+    level=logging.DEBUG,
+    format=
+    '%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s')
 log = logging.getLogger()
 app = Flask(__name__, static_url_path='')
 app.config['DEBUG'] = True
@@ -69,7 +74,14 @@ if __name__ == "__main__":
     logging.getLogger('connectionpool').setLevel(logging.INFO)
     logging.getLogger('gipc').setLevel(logging.INFO)
     logging.getLogger("urllib3").setLevel(logging.INFO)
-    log.info(u'Started.')
-    srv = WSGIServer(('0.0.0.0', 5000), app,
-                     handler_class=WebSocketHandler, log=log)
+    scheduler_thread = threading.Thread(target=start,args=())
+    scheduler_thread.setDaemon(True)
+    scheduler_thread.start()
+    log.info(u'Scheduler Started.')
+    srv = WSGIServer(('0.0.0.0', 5000),
+                     app,
+                     handler_class=WebSocketHandler,
+                     log=log)
+    log.info(u'Started Server.')
     srv.serve_forever()
+    shutdown()
