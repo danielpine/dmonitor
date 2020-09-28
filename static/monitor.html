@@ -185,6 +185,28 @@
         .margin_top_10px {
             margin-top: 10px;
         }
+        
+        .box-card {
+            width: 100%;
+        }
+        
+        .el-header,
+        .el-footer {
+            background-color: #B3C0D1;
+            color: #333;
+            text-align: center;
+            line-height: 60px;
+        }
+        
+        .el-aside {
+            background-color: #D3DCE6;
+            color: #333;
+        }
+        
+        .el-main {
+            background-color: #E9EEF3;
+            color: #333;
+        }
     </style>
 </head>
 
@@ -204,32 +226,44 @@
     <div id="app" v-cloak>
         <el-container>
             <el-main style="padding: 0;">
-                <div id="title" style="background: lightgray;">
-                    <span>Monitor
-                    <el-select size="mini"
-                                 style="width: 246px;"
-                                 v-model="lastTimeOption"
-                                 placeholder=""
-                                 v-on:change=query_range>
-                        <el-option v-for="v,k in lastTimeOptions"
-                                   :key="k"
-                                   :label="k"
-                                   :value="k"></el-option>
-                      </el-select>
-                      <el-input size="mini" v-model="processfilter" style="width: 200px;" clearable ></el-input>
-                    <el-button  type="primary" size="mini" icon="el-icon-refresh" :loading="querying" @click="query_range()">刷新</el-button></span>
-                </div>
-                <div id="container" style="height: 500px"></div>
-                <el-table ref="multipleTable" :data="tableData" tooltip-effect="dark" style="width: 100%" max-height="250" @selection-change="handleSelectionChange">
-                    <el-table-column type="selection" width="55">
-                    </el-table-column>
-                    <el-table-column type="index" label="#" width="100">
-                    </el-table-column>
-                    <el-table-column prop="pid" label="PID" width="120" sortable>
-                    </el-table-column>
-                    <el-table-column prop="pname" label="PNAME" width="300" sortable>
-                    </el-table-column>
-                </el-table>
+                <el-header style="width: 100%;height: 64px;background-color:lightgrey">
+                    <el-row>
+                        <el-col style="width: 15%;text-align:left;">Orange Resource Monitor</el-col>
+                        <el-col style="width: 85%;text-align:right;">
+                            <el-input title="Process Filter" size="mini" v-model="processfilter" style="width: 200px;" clearable></el-input>
+                            <el-select title="Ranges" size="mini" style="width: 246px;" v-model="lastTimeOption" placeholder="" v-on:change=query_range>
+                                <el-option v-for="v,k in lastTimeOptions" :key="k" :label="k" :value="k"></el-option>
+                            </el-select>
+                            <el-button title="Refresh" type="success" size="mini" icon="el-icon-refresh" :loading="querying" @click="query_range()"></el-button>
+                            </span>
+                        </el-col>
+                    </el-row>
+                </el-header>
+                <el-container style="width: 100%; margin-top: 0;">
+                    <el-main style="width: 100%;height: 100%;background-color:  lightgrey">
+                        <el-row style="width: 100%; ">
+                            <el-col style="width: 100%">
+                                <el-card class="box-card" shadow="hover">
+                                    <div id="container" style="height: 450px;width: 100%;"></div>
+                                </el-card>
+                            </el-col>
+                        </el-row>
+                        <el-row style="margin-top: 5px;">
+                            <el-card class="box-card" shadow="hover">
+                                <el-table :header-cell-style="{'height':'30px'}" ref="multipleTable" :data="tableData" height="250" stripe border style="width: 100%" max-height="250" @selection-change="handleSelectionChange">
+                                    <el-table-column type="selection" width="55">
+                                    </el-table-column>
+                                    <el-table-column type="index" label="#" width="100">
+                                    </el-table-column>
+                                    <el-table-column prop="pid" label="PID" sortable>
+                                    </el-table-column>
+                                    <el-table-column prop="pname" label="PNAME" sortable>
+                                    </el-table-column>
+                                </el-table>
+                            </el-card>
+                        </el-row>
+                    </el-main>
+                </el-container>
             </el-main>
         </el-container>
     </div>
@@ -245,10 +279,7 @@
         }
 
         function genColorByPid(pid) {
-            var r = pid % 16
-            var g = (pid + 7 * pid) % 16
-            var b = (pid + 7 * pid) % 16
-            return '#' + cs[r] + '' + cs[g] + '' + cs[b];
+            return '#' + Math.floor(('0.' + (pid + 1)) * 16777215).toString(16);
         }
 
         function initWebSocket() {
@@ -498,6 +529,7 @@
                     type: 'line',
                     smooth: true,
                     symbol: 'none',
+                    showSymbol: false,
                     sampling: 'average',
                     itemStyle: {
                         color: c
@@ -508,7 +540,7 @@
                             color: c
                         }, {
                             offset: 1,
-                            color: c
+                            color: '#ffe'
                         }])
                     },
                     data: data_map[pid]
@@ -519,6 +551,13 @@
             option = {
                 tooltip: {
                     trigger: 'axis',
+                    axisPointer: {
+                        type: 'cross',
+                        snap: true,
+                        label: {
+                            margin: 20,
+                        }
+                    },
                     formatter: (params) => {
                         params.sort(function(a, b) {
                             return b.data[1] - a.data[1]
@@ -557,7 +596,21 @@
                         formatter: function(value, index) {
                             return formatdate(value);
                         }
-                    }
+                    },
+                    axisPointer: {
+                        lineStyle: {
+                            color: '#004E52',
+                            opacity: 0.5,
+                            width: 2
+                        },
+                        label: {
+                            show: true,
+                            formatter: function(params) {
+                                return echarts.format.formatTime('yyyy-MM-dd hh:mm:ss', params.value);
+                            },
+                            backgroundColor: '#004E52'
+                        }
+                    },
                 },
                 yAxis: {
                     type: 'value',
@@ -565,21 +618,25 @@
                 },
                 dataZoom: [{
                     type: 'inside',
-                    // start: 0,
-                    // end: 10
-                }, {
-                    start: 0,
-                    end: 10,
-                    handleIcon: 'M10.7,11.9v-1.3H9.3v1.3c-4.9,0.3-8.8,4.4-8.8,9.4c0,5,3.9,9.1,8.8,9.4v1.3h1.3v-1.3c4.9-0.3,8.8-4.4,8.8-9.4C19.5,16.3,15.6,12.2,10.7,11.9z M13.3,24.4H6.7V23h6.6V24.4z M13.3,19.6H6.7v-1.4h6.6V19.6z',
-                    handleSize: '80%',
-                    handleStyle: {
-                        color: '#000',
-                        shadowBlur: 3,
-                        shadowColor: 'rgba(0, 0, 0, 0.6)',
-                        shadowOffsetX: 2,
-                        shadowOffsetY: 2
-                    }
+                    throttle: 50
                 }],
+                /** dataZoom: [{
+                     type: 'inside',
+                     // start: 0,
+                     // end: 10
+                 }, {
+                     start: 0,
+                     end: 10,
+                     handleIcon: 'M10.7,11.9v-1.3H9.3v1.3c-4.9,0.3-8.8,4.4-8.8,9.4c0,5,3.9,9.1,8.8,9.4v1.3h1.3v-1.3c4.9-0.3,8.8-4.4,8.8-9.4C19.5,16.3,15.6,12.2,10.7,11.9z M13.3,24.4H6.7V23h6.6V24.4z M13.3,19.6H6.7v-1.4h6.6V19.6z',
+                     handleSize: '80%',
+                     handleStyle: {
+                         color: '#000',
+                         shadowBlur: 3,
+                         shadowColor: 'rgba(0, 0, 0, 0.6)',
+                         shadowOffsetX: 2,
+                         shadowOffsetY: 2
+                     }
+                 }],*/
                 series: series
             }
             if (option && typeof option === "object") {
