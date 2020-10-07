@@ -1,3 +1,6 @@
 /test.db
 /__pycache__/*
 /.vscode/settings.json
+/build/
+/server.exe
+/server.spec

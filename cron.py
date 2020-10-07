@@ -19,17 +19,15 @@ def get_mem_size(process):
     return mem_info.rss / 1024
 
 
-@scheduler.scheduled_job('cron', second='*/15', max_instances=5)
+@scheduler.scheduled_job('cron', second='*/5', max_instances=5)
 def request_update_status():
     print(int(time.time()), 'Doing job')
-    data = []
+    data = [] 
     log.info('start')
     tms = int(time.time())
     log.info(tms)
-    for p in psutil.process_iter():
-        # log.info("pid : %s pname: %s mem: %10f kb" ,p.pid, p.name(), get_mem_size(p))
-        # p.cpu_percent()
-        data.append((tms, p.pid, p.name(), get_mem_size(p)))
+    for p in psutil.process_iter(): 
+        data.append((tms, p.pid, p.name(), get_mem_size(p),p.cpu_percent()))
     log.info('inserting')
     insert_many_to_record(data)
     log.info('inserted')

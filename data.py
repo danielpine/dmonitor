@@ -16,7 +16,9 @@ def create_table_record():
            (timestamp NUMBER, 
             pid NUMBER, 
             pname TEXT, 
-            memres NUMBER);'''
+            memres NUMBER,
+            cpuused NUMBER
+            );'''
     execute(db, record_create_sql)
 
 
@@ -36,7 +38,7 @@ def insert_many(db, sql, data):
 
 
 def insert_many_to_record(data):
-    insert_many(db, 'INSERT INTO record VALUES (?,?,?,?)', data)
+    insert_many(db, 'INSERT INTO record VALUES (?,?,?,?,?)', data)
 
 
 def select_from_record(start, end):
