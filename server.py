@@ -10,12 +10,8 @@ from geventwebsocket.server import WSGIServer
 from geventwebsocket.handler import WebSocketHandler
 from cron import start
 from cron import shutdown
+from logger import log
 
-logging.basicConfig(
-    level=logging.DEBUG,
-    format=
-    '%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s')
-log = logging.getLogger()
 app = Flask(__name__, static_url_path='')
 app.config['DEBUG'] = True
 user_socket_list = []
@@ -74,7 +70,7 @@ if __name__ == "__main__":
     logging.getLogger('connectionpool').setLevel(logging.INFO)
     logging.getLogger('gipc').setLevel(logging.INFO)
     logging.getLogger("urllib3").setLevel(logging.INFO)
-    scheduler_thread = threading.Thread(target=start,args=())
+    scheduler_thread = threading.Thread(target=start, args=())
     scheduler_thread.setDaemon(True)
     scheduler_thread.start()
     log.info(u'Scheduler Started.')

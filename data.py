@@ -1,12 +1,6 @@
-
-
-import logging
 import sqlite3
 import time
-
-logging.basicConfig(level=logging.DEBUG,
-                    format='%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s')
-log = logging.getLogger()
+from logger import log
 
 db = 'test.db'
 
