@@ -1,15 +1,14 @@
-import os
 import logging
-import time
 import threading
-from data import select_from_record
-from data import select_from_record_filter
+import time
+
 from flask import (Flask, Response, escape, jsonify, redirect, request,
                    session, url_for)
-from geventwebsocket.server import WSGIServer
 from geventwebsocket.handler import WebSocketHandler
-from cron import start
-from cron import shutdown
+from geventwebsocket.server import WSGIServer
+
+from cron import shutdown, start
+from data import select_from_record, select_from_record_filter
 from logger import log
 
 app = Flask(__name__, static_url_path='')
