@@ -135,3 +135,18 @@ re = PySqlTemplate.statement(
 ).params('admin', 'NYS%').list_all()
 
 Stream(re).foreach(log.info)
+
+PySqlTemplate.set_data_source(
+    DataSource(
+        dbType=DBTypes.Oracle,
+        user='scott',
+        password='123456',
+        ip='localhost',
+        port=1521,
+        db='orcl'))
+
+re = PySqlTemplate.statement(
+    'select * from DEPT t where deptno >= ?'
+).params(20).list_all()
+
+Stream(re).foreach(log.info)
