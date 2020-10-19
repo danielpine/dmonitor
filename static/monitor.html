@@ -6,190 +6,191 @@
     <title>Monitor</title>
     <style type="text/css">
         @import url("lib/element-ui/theme-chalk/index.css");
+
         body {
             margin: 0;
             color: rgb(44, 44, 44);
         }
-        
+
         .el-table th>.cell {
             padding: 0 14px;
         }
-        
+
         .el-table td,
         .el-table th {
             padding: 3px 0;
         }
-        
+
         .host_status {
             margin: auto;
             width: 10px;
             height: 10px;
             border-radius: 5px;
         }
-        
+
         .host_status_1 {
             background-color: lawngreen;
         }
-        
+
         .host_status_0 {
             background-color: firebrick;
         }
-        
+
         #title {
             padding: 0 10px;
             height: 64px;
             line-height: 64px;
             border-bottom: 1px solid gainsboro;
         }
-        
+
         .el_col {
             padding: 0 10px;
             height: 100%;
         }
-        
+
         .el_col_left {
             border-right: 1px gainsboro dashed;
             height: calc(100vh - 65px);
             overflow: scroll;
         }
-        
+
         .el_col_right {
             height: calc(100vh - 65px);
             overflow: scroll;
             padding-bottom: 10px;
         }
-        
+
         .el-card__body {
             padding: 0 20px;
         }
-        
+
         pre {
             margin: 0;
             padding: 2px 20px;
         }
-        
+
         .output_title {
             font-size: 13px;
             color: forestgreen;
         }
-        
+
         .output_title_inner {
             font-size: 11px;
             color: forestgreen;
         }
-        
+
         .host_group_title {
             margin-top: 15px;
             border-top: 1px gainsboro dashed;
             padding-top: 10px;
         }
-        
+
         .btn_fixed {
             position: absolute;
             z-index: 99;
             font-size: 20px;
             top: -2px;
         }
-        
+
         .btn_fixed_run:hover,
         .btn_fixed_run:focus {
             color: forestgreen;
         }
-        
+
         .btn_fixed_refresh:hover,
         .btn_fixed_refresh:focus {
             color: #66b1ff;
         }
-        
+
         .btn_fixed_run {
             right: 40px;
             color: forestgreen;
         }
-        
+
         .btn_fixed_refresh {
             right: 10px;
             color: #66b1ff;
         }
-        
+
         [v-cloak] {
             display: none;
         }
-        
+
         .el-table--enable-row-transition .el-table__body td {
             padding: 0;
         }
-        
+
         .smallTable .el-table td,
         .el-table th {
             padding: 0;
         }
-        
+
         .el-card__body {
             padding: 0;
         }
-        
+
         .clr_chs_btn {
             font-size: 18px;
             position: fixed;
             top: 0;
             padding: 22px 0;
         }
-        
+
         .clr_chs_btn_left {
             right: 64px;
         }
-        
+
         .clr_chs_btn_right {
             right: 32px;
         }
-        
+
         .clr_chs_btn_div {
             height: 16px;
             width: 32px;
         }
-        
+
         .clr_chs_btn_div_left {
             background-color: rgb(31, 31, 31);
         }
-        
+
         .clr_chs_btn_div_right {
             background-color: rgb(235, 238, 244);
         }
-        
+
         #editor {
             position: relative;
             border-radius: 4px;
         }
-        
+
         .sticky_title {
             position: sticky;
             top: 0;
             padding: 0 20px;
         }
-        
+
         .title_btm_dashed {
             border-bottom: 1px dashed rgb(235, 238, 244);
         }
-        
+
         .px250_scroll {
             max-height: 250px;
             overflow: scroll;
         }
-        
+
         .grp_inner_bdr_top {
             border: none;
             border-top: 1px solid rgb(235, 238, 244);
             border-radius: 0;
         }
-        
+
         .margin_top_10px {
             margin-top: 10px;
         }
-        
+
         .box-card {
             width: 100%;
         }
-        
+
         .el-header,
         .el-footer {
             background-color: #B3C0D1;
@@ -197,12 +198,12 @@
             text-align: center;
             line-height: 60px;
         }
-        
+
         .el-aside {
             background-color: #D3DCE6;
             color: #333;
         }
-        
+
         .el-main {
             background-color: #E9EEF3;
             color: #333;
@@ -211,12 +212,12 @@
 </head>
 
 <body style="background: azure;">
-    <script src="lib/vue/vue.js"></script>
-    <script src="lib/element-ui/index.js"></script>
-    <script src="js/jquery-2.1.1.min.js"></script>
-    <script src="js/ace.js"></script>
-    <script src="js/ext-language_tools.js"></script>
-    <script src="js/ace.hint.js"></script>
+    <script type="text/javascript" src="lib/vue/vue.js"></script>
+    <script type="text/javascript" src="lib/element-ui/index.js"></script>
+    <script type="text/javascript" src="js/jquery-2.1.1.min.js"></script>
+    <script type="text/javascript" src="js/ace.js"></script>
+    <script type="text/javascript" src="js/ext-language_tools.js"></script>
+    <script type="text/javascript" src="js/ace.hint.js"></script>
     <script type="text/javascript" src="js/echarts.min.js"></script>
     <script type="text/javascript" src="js/echarts-gl.min.js"></script>
     <script type="text/javascript" src="js/ecStat.min.js"></script>
@@ -230,11 +231,14 @@
                     <el-row>
                         <el-col style="width: 15%;text-align:left;">Orange Resource Monitor</el-col>
                         <el-col style="width: 85%;text-align:right;">
-                            <el-input title="Process Filter" size="mini" v-model="processfilter" style="width: 200px;" clearable></el-input>
-                            <el-select title="Ranges" size="mini" style="width: 246px;" v-model="lastTimeOption" placeholder="" v-on:change=query_range>
+                            <el-input title="Process Filter" size="mini" v-model="processfilter" style="width: 200px;"
+                                clearable></el-input>
+                            <el-select title="Ranges" size="mini" style="width: 246px;" v-model="lastTimeOption"
+                                placeholder="" v-on:change=query_range>
                                 <el-option v-for="v,k in lastTimeOptions" :key="k" :label="k" :value="k"></el-option>
                             </el-select>
-                            <el-button title="Refresh" type="success" size="mini" icon="el-icon-refresh" :loading="querying" @click="query_range()"></el-button>
+                            <el-button title="Refresh" type="success" size="mini" icon="el-icon-refresh"
+                                :loading="querying" @click="query_range()"></el-button>
                             </span>
                         </el-col>
                     </el-row>
@@ -243,17 +247,19 @@
                     <el-main style="width: 100%;height: 100%;background-color:  lightgrey">
                         <el-row style="width: 100%; ">
                             <el-card class="box-card" shadow="hover">
-                                <div id="cpupanle" style="height: 280px;width: 100%;"></div>
+                                <div id="cpupanle" style="height: 380px;width: 100%;"></div>
                             </el-card>
                         </el-row>
                         <el-row style="width: 100%; ">
                             <el-card class="box-card" shadow="hover">
-                                <div id="mempanle" style="height: 280px;width: 100%;"></div>
+                                <div id="mempanle" style="height: 380px;width: 100%;"></div>
                             </el-card>
                         </el-row>
                         <el-row style="margin-top: 5px;">
                             <el-card class="box-card" shadow="hover">
-                                <el-table :header-cell-style="{'height':'30px'}" ref="multipleTable" :data="tableData" height="250" stripe border style="width: 100%" max-height="250" @selection-change="handleSelectionChange">
+                                <el-table :header-cell-style="{'height':'30px'}" ref="multipleTable" :data="tableData"
+                                    height="250" stripe border style="width: 100%" max-height="250"
+                                    @selection-change="handleSelectionChange">
                                     <el-table-column type="selection" width="55">
                                     </el-table-column>
                                     <el-table-column type="index" label="#" width="100">
@@ -273,14 +279,6 @@
     <script>
         var webSocket
 
-        var cs = '0123456789abcdef'.split('')
-
-        function randomColor() {
-            return '#' + '0123456789abcdef'.split('').map(function(v, i, a) {
-                return i > 5 ? null : a[Math.floor(Math.random() * 16)]
-            }).join('');
-        }
-
         function genColorByPid(pid) {
             return '#' + Math.floor(('0.' + (pid + 1)) * 16777215).toString(16);
         }
@@ -295,11 +293,11 @@
         function webSocketOpen() {
             console.log("WebSocket连接成功")
             webSocket.send(JSON.stringify({
-                    reqType: 10001
-                })) // 请求hosts
+                reqType: 10001
+            })) // 请求hosts
             webSocket.send(JSON.stringify({
-                    reqType: 10002
-                })) // 请求groups
+                reqType: 10002
+            })) // 请求groups
         }
 
         function webSocketMessage(e) {
@@ -363,7 +361,7 @@
                 }
             },
             mounted() {
-                this.query_range(function() {
+                this.query_range(function () {
                     window.parent.vm.loading = false
                 })
             },
@@ -424,11 +422,11 @@
                         url: '/query_range' + '?start=' + (now - vmm.lastTimeOptions[vmm.lastTimeOption] * 60) + '&end=' + now + '&processfilter=' + vmm.processfilter,
                         async: true,
                         cache: false,
-                        error: function(request) {
+                        error: function (request) {
                             vmm.notification(vm.$t('msg.data_loading_error'), vm.$t(
                                 'msg.net_error'), 'bottom-right', 'error')
                         },
-                        success: function(res) {
+                        success: function (res) {
                             handle_process_data(res)
                             vmm.querying = false
                             if (callback)
@@ -437,7 +435,7 @@
                         dataType: 'json'
                     })
                 },
-                send: function() {
+                send: function () {
                     let data = {
                         reqType: 10003,
                         target: {
@@ -563,7 +561,7 @@
                         }
                     },
                     formatter: (params) => {
-                        params.sort(function(a, b) {
+                        params.sort(function (a, b) {
                             return b.data[1] - a.data[1]
                         })
                         var d = []
@@ -574,7 +572,7 @@
                         return d.join('<br>')
                     },
                     extraCssText: 'box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);',
-                    position: function(pt) {
+                    position: function (pt) {
                         return [pt[0], '10%'];
                     }
                 },
@@ -597,7 +595,7 @@
                     interval: vm.lastTimeOptions[vm.lastTimeOption] * 12 * 1000,
                     data: tms,
                     axisLabel: {
-                        formatter: function(value, index) {
+                        formatter: function (value, index) {
                             return formatdate(value);
                         }
                     },
@@ -609,7 +607,7 @@
                         },
                         label: {
                             show: true,
-                            formatter: function(params) {
+                            formatter: function (params) {
                                 return echarts.format.formatTime('yyyy-MM-dd hh:mm:ss', params.value);
                             },
                             backgroundColor: '#004E52'
@@ -624,23 +622,6 @@
                     type: 'inside',
                     throttle: 50
                 }],
-                /** dataZoom: [{
-                     type: 'inside',
-                     // start: 0,
-                     // end: 10
-                 }, {
-                     start: 0,
-                     end: 10,
-                     handleIcon: 'M10.7,11.9v-1.3H9.3v1.3c-4.9,0.3-8.8,4.4-8.8,9.4c0,5,3.9,9.1,8.8,9.4v1.3h1.3v-1.3c4.9-0.3,8.8-4.4,8.8-9.4C19.5,16.3,15.6,12.2,10.7,11.9z M13.3,24.4H6.7V23h6.6V24.4z M13.3,19.6H6.7v-1.4h6.6V19.6z',
-                     handleSize: '80%',
-                     handleStyle: {
-                         color: '#000',
-                         shadowBlur: 3,
-                         shadowColor: 'rgba(0, 0, 0, 0.6)',
-                         shadowOffsetX: 2,
-                         shadowOffsetY: 2
-                     }
-                 }],*/
                 series: series
             }
             if (option && typeof option === "object") {
