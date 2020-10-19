@@ -1,4 +1,5 @@
 from enum import Enum
+import time
 from logger import log
 
 
@@ -120,33 +121,48 @@ class PySqlTemplate():
         PySqlTemplate.data_source.close_conn()
         return [list(e) if len(cols) > 1 else e[0] for e in res]
 
+def query_mysql():
+    PySqlTemplate.set_data_source(
+        DataSource(
+            dbType=DBTypes.MySql,
+            user='root',
+            password='root',
+            ip='localhost',
+            port=3306,
+            db='deri'))
 
-PySqlTemplate.set_data_source(
-    DataSource(
-        dbType=DBTypes.MySql,
-        user='root',
-        password='root',
-        ip='localhost',
-        port=3306,
-        db='deri'))
+    re = PySqlTemplate.statement(
+        'SELECT CALID,HOLIDAY,WORKHOLIDAY FROM HOLIDAY WHERE CREATE_BY=? AND CALID LIKE ? ORDER BY HOLIDAY LIMIT 10'
+    ).params('admin', 'NYS%').list_all()
 
-re = PySqlTemplate.statement(
-    'SELECT CALID,HOLIDAY,WORKHOLIDAY FROM HOLIDAY WHERE CREATE_BY=? AND CALID LIKE ? ORDER BY HOLIDAY LIMIT 10'
-).params('admin', 'NYS%').list_all()
+    Stream(re).foreach(log.info)
 
-Stream(re).foreach(log.info)
+def query_oracle():
+    PySqlTemplate.set_data_source(
+        DataSource(
+            dbType=DBTypes.Oracle,
+            user='scott',
+            password='123456',
+            ip='localhost',
+            port=1521,
+            db='orcl'))
 
-PySqlTemplate.set_data_source(
-    DataSource(
-        dbType=DBTypes.Oracle,
-        user='scott',
-        password='123456',
-        ip='localhost',
-        port=1521,
-        db='orcl'))
+    re = PySqlTemplate.statement(
+        'select * from DEPT t where deptno >= ?'
+    ).params(20).list_all()
 
-re = PySqlTemplate.statement(
-    'select * from DEPT t where deptno >= ?'
-).params(20).list_all()
+    Stream(re).foreach(log.info)
 
-Stream(re).foreach(log.info)
+def query_sqlite3():
+    PySqlTemplate.set_data_source(
+        DataSource(
+            dbType=DBTypes.Sqlite3,
+            db='test.db'))
+
+    re = PySqlTemplate.statement(
+        'select count(timestamp) from record where timestamp>?'
+    ).params( int(time.time()-(3600*24*30))).list_all()
+
+    Stream(re).foreach(log.info)
+
+query_sqlite3()
