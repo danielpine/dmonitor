@@ -6,6 +6,9 @@ from flask import (Flask, Response, escape, jsonify, redirect, request,
                    session, url_for)
 from geventwebsocket.handler import WebSocketHandler
 from geventwebsocket.server import WSGIServer
+import psutil
+
+from cron import get_mem_size
 
 from cron import shutdown, start
 from data import select_from_record, select_from_record_filter
@@ -44,7 +47,23 @@ def orange():
 def index():
     return app.send_static_file('index.html')
 
+def quiet_exec(fun):
+        try:
+            result=fun()
+            log.info(result)
+            return result
+        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+            return ''
 
+@app.route('/query_process')
+def query_process():
+    data = []
+    title='Pid,Ppid,Name,MemUsed,Cpu_Percent,Cmdline'
+    data.append(title)
+    for p in psutil.process_iter():
+        data.append(','.join([str(e) for e in [ p.pid,p.ppid(), p.name(), get_mem_size(p), p.cpu_percent(),'  '.join(quiet_exec(p.cmdline))]]))
+    return '\n'.join(data)
+    
 @app.route('/query_range')
 def query_range():
     parm = request.args.to_dict()

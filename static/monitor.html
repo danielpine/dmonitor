@@ -237,9 +237,10 @@
                                 placeholder="" v-on:change=query_range>
                                 <el-option v-for="v,k in lastTimeOptions" :key="k" :label="k" :value="k"></el-option>
                             </el-select>
-                            <el-button title="Refresh" type="success" size="mini" icon="el-icon-refresh"
+                            <el-button title="Refresh" type="success" size="mini" circle icon="el-icon-refresh"
                                 :loading="querying" @click="query_range()"></el-button>
-                            </span>
+                            <el-button @click="edit_conf" type="primary" size="mini" icon="el-icon-edit" circle>
+                            </el-button>
                         </el-col>
                     </el-row>
                 </el-header>
@@ -275,7 +276,44 @@
                 </el-container>
             </el-main>
         </el-container>
+        <el-drawer title="我是标题" :visible.sync="drawer" size="80%" :with-header="false">
+            <h3>Configuration</h3>
+            <el-tabs type="border-card" @tab-click=tab_click>
+                <el-tab-pane label="进程监控">
+                    <div style="height: 600px">
+                        进程监控
+                    </div>
+                </el-tab-pane>
+                <el-tab-pane label="实时进程">
+                    <div style="height: 600px;">
+                        <el-table stripe border v-loading="proc_loading" element-loading-text="拼命加载中"
+                            element-loading-spinner="el-icon-loading" element-loading-background="rgba(0, 0, 0, 0.8)"
+                            :data="process_list.filter(data => !search || (JSON.stringify(data).toLowerCase()).includes(search.toLowerCase()))"
+                            style="width: 100%" max-height="600" :default-sort="{prop: 'MemUsed', order: 'descending'}">
+                            <el-table-column prop="Pid" label="Pid" leba sortable width="180">
+                            </el-table-column>
+                            <el-table-column prop="Ppid" label="Ppid" leba sortable width="180">
+                            </el-table-column>
+                            <el-table-column prop="Name" label="Name" sortable width="180">
+                            </el-table-column>
+                            <el-table-column prop="MemUsed" label="MemUsed" width="180" :sort-method="sort_mem"
+                                sortable>
+                            </el-table-column>
+                            <el-table-column prop="Cpu_Percent" label="Cpu_Percent" width="180" :sort-method="sort_cpu"
+                                sortable>
+                            </el-table-column>
+                            <el-table-column prop="Cmdline" label="Cmdline">
+                                <template slot="header" slot-scope="scope">
+                                    <el-input v-model="search" size="mini" placeholder="输入关键字搜索" />
+                                </template>
+                            </el-table-column>
+                        </el-table>
+                    </div>
+                </el-tab-pane>
+            </el-tabs>
+        </el-drawer>
     </div>
+    <script src="js/plotly-latest.min.js"></script>
     <script>
         var webSocket
 
@@ -335,6 +373,10 @@
             el: "#app",
             data: {
                 hostNodes: [],
+                process_list: [],
+                search: '',
+                proc_loading: false,
+                drawer: false,
                 selectHostNodes: [],
                 hostsOutput: [],
                 groupNodes: [],
@@ -377,6 +419,28 @@
                 }
             },
             methods: {
+                tab_click: function (tab, event) {
+                    var vmm = this
+                    vmm.proc_loading = true
+                    if (tab.label == "实时进程") {
+                        Plotly.d3.csv("/query_process", function (err, rows) {
+                            vmm.process_list = rows
+                            vmm.proc_loading = false
+                        })
+                    }
+                },
+                sort_mem: function (a, b) {
+                    return parseFloat(a['MemUsed']) - parseFloat(b['MemUsed'])
+                },
+                sort_cpu: function (a, b) {
+                    return parseFloat(a['Cpu_Percent']) - parseFloat(b['Cpu_Percent'])
+                },
+                formatter_float(row, column) {
+                    return column;
+                },
+                edit_conf: function () {
+                    this.drawer = true
+                },
                 toggleSelection(rows) {
                     if (rows) {
                         rows.forEach(row => {

@@ -16,7 +16,7 @@ def get_mem_size(process):
 
 @scheduler.scheduled_job('cron', second='*/5', max_instances=5)
 def request_update_status():
-    print(int(time.time()), 'Doing job')
+    log.info('Doing job %s',int(time.time()))
     data = []
     log.info('start')
     tms = int(time.time())
