@@ -1,3 +1,5 @@
+var chart_store = {}
+
 function render(id, xdata, series, title) {
     option = {
         tooltip: {
@@ -83,9 +85,23 @@ function render(id, xdata, series, title) {
         }],
         series: series
     }
-    var chart = echarts.init(document.getElementById(id))
-    chart.setOption(option, true)
+    if (!chart_store[id]) {
+        chart_store[id] = echarts.init(document.getElementById(id), null, {
+            // renderer: 'svg',
+        })
+    }
+    chart_store[id].setOption(option)
 }
+var resizeDebounce = null;
+window.addEventListener('resize', function () {
+    function resizePlot() {
+        Object.values(chart_store).forEach(chart => chart.resize())
+    }
+    if (resizeDebounce) {
+        window.clearTimeout(resizeDebounce);
+    }
+    resizeDebounce = window.setTimeout(resizePlot, 100);
+});
 
 function pushData(map, pid, t, val) {
     if (!map[pid]) {
@@ -94,11 +110,26 @@ function pushData(map, pid, t, val) {
     map[pid].push([t, val])
 }
 
+function rgb2hex(item) {
+    if (item && item.length == 3) {
+        var a = item[0],
+            b = item[1],
+            c = item[2],
+            d = "#",
+            cArray = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"];
+        d += cArray[Math.floor(a / 16)] + "" + cArray[a % 16] + "";
+        d += cArray[Math.floor(b / 16)] + "" + cArray[b % 16] + "";
+        d += cArray[Math.floor(c / 16)] + "" + cArray[c % 16] + "";
+        return d;
+    }
+}
+
 function genSeries(data_map) {
     var series = []
     for (pid in data_map) {
-        var c = genColorByPid(pid)
-        var ss = {
+        var rgb = colorHash.rgb(pid)
+        var color = rgb2hex(rgb)
+        series.push({
             name: pid,
             type: 'line',
             smooth: true,
@@ -106,20 +137,19 @@ function genSeries(data_map) {
             showSymbol: false,
             sampling: 'average',
             itemStyle: {
-                color: c
+                color: color
+            },
+            lineStyle: {
+                width: 1
             },
             areaStyle: {
                 color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
                     offset: 0,
-                    color: c
-                }, {
-                    offset: 1,
-                    color: '#ffe'
+                    color: 'rgba(' + rgb[0] + ',' + rgb[1] + ', ' + rgb[2] + ', 0.1)'
                 }])
             },
             data: data_map[pid]
-        }
-        series.push(ss)
+        })
     }
     return series
 }

@@ -93,12 +93,6 @@ def query_range():
 
 
 if __name__ == "__main__":
-    logging.getLogger('PokeAlarm').setLevel(logging.INFO)
-    logging.getLogger('requests').setLevel(logging.INFO)
-    logging.getLogger('pyswgi').setLevel(logging.INFO)
-    logging.getLogger('connectionpool').setLevel(logging.INFO)
-    logging.getLogger('gipc').setLevel(logging.INFO)
-    logging.getLogger("urllib3").setLevel(logging.INFO)
     scheduler_thread = threading.Thread(target=start, args=())
     scheduler_thread.setDaemon(True)
     scheduler_thread.start()

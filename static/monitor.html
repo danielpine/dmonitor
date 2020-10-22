@@ -12,6 +12,20 @@
             color: rgb(44, 44, 44);
         }
 
+        h1 {
+            color: #333;
+            height: 64px;
+            min-width: 300px;
+            margin: 0;
+            padding: 0;
+        }
+
+        p {
+            color: #999;
+        }
+
+  
+
         .el-table th>.cell {
             padding: 0 14px;
         }
@@ -238,10 +252,12 @@
     <script type="text/javascript" src="js/websocket-service.js"></script>
     <div id="app" v-cloak>
         <el-container>
-            <el-main style="padding: 0;">
+            <el-main style="padding: 0;min-width: 800px;">
                 <el-header style="width: 100%;height: 64px;background-color:lightgrey">
                     <el-row>
-                        <el-col style="width: 15%;text-align:left;">Orange Resource Monitor</el-col>
+                        <el-col style="width: 15%;text-align:left;">
+                            <h1>Orange Resource Monitor</h1>
+                        </el-col>
                         <el-col style="width: 85%;text-align:right;">
                             <el-input title="Process Filter" size="mini" v-model="processfilter" style="width: 200px;"
                                 clearable></el-input>
@@ -329,9 +345,10 @@
         </el-drawer>
     </div>
     <script src="js/plotly-latest.min.js"></script>
+    <script src="js/color-hash.js"></script>
+    <script src="js/colors-gen.js"></script>
     <script>
         var webSocket
-
         // Vue.js
         var vm = new Vue({
             el: "#app",
