@@ -37,7 +37,7 @@ def orange():
                 except:
                     continue
         except Exception as e:
-            log.info(e)
+            log.error(e)
             if user_socket and user_socket in user_socket_list:
                 user_socket_list.remove(user_socket)
             return ''
@@ -47,10 +47,12 @@ def orange():
 def index():
     return app.send_static_file('index.html')
 
+def test_info():
+    print("info")
+
 def quiet_exec(fun):
         try:
             result=fun()
-            log.info(result)
             return result
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
             return ''
@@ -61,8 +63,17 @@ def query_process():
     title='Pid,Ppid,Name,MemUsed,Cpu_Percent,Cmdline'
     data.append(title)
     for p in psutil.process_iter():
-        data.append(','.join([str(e) for e in [ p.pid,p.ppid(), p.name(), get_mem_size(p), p.cpu_percent(),'  '.join(quiet_exec(p.cmdline))]]))
+        data.append(','.join([str(e) for e in [ p.pid,p.ppid(), p.name(), get_mem_size(p), p.cpu_percent(),'"'+' '.join(quiet_exec(p.cmdline))+'"']]))
     return '\n'.join(data)
+
+import json
+@app.route('/query_process_full')
+def query_process__full():
+    resp=[]
+    for p in psutil.process_iter():
+        j=p.as_dict()
+        resp.append(j)
+    return json.dumps(resp,indent=2)
     
 @app.route('/query_range')
 def query_range():

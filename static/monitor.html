@@ -208,6 +208,16 @@
             background-color: #E9EEF3;
             color: #333;
         }
+
+        .el-tooltip__popper {
+            max-width: 30%;
+        }
+
+        .el-tooltip__popper,
+        .el-tooltip__popper.is-dark {
+            background: #0c0c0c !important;
+            color: #e2e5eb !important;
+        }
     </style>
 </head>
 
@@ -224,6 +234,8 @@
     <script type="text/javascript" src="js/dataTool.min.js"></script>
     <script type="text/javascript" src="js/china.js"></script>
     <script type="text/javascript" src="js/world.js"></script>
+    <script type="text/javascript" src="js/charts-service.js"></script>
+    <script type="text/javascript" src="js/websocket-service.js"></script>
     <div id="app" v-cloak>
         <el-container>
             <el-main style="padding: 0;">
@@ -238,7 +250,7 @@
                                 <el-option v-for="v,k in lastTimeOptions" :key="k" :label="k" :value="k"></el-option>
                             </el-select>
                             <el-button title="Refresh" type="success" size="mini" circle icon="el-icon-refresh"
-                                :loading="querying" @click="query_range()"></el-button>
+                                :loading="querying" @click="query_range"></el-button>
                             <el-button @click="edit_conf" type="primary" size="mini" icon="el-icon-edit" circle>
                             </el-button>
                         </el-col>
@@ -256,7 +268,7 @@
                                 <div id="mempanle" style="height: 380px;width: 100%;"></div>
                             </el-card>
                         </el-row>
-                        <el-row style="margin-top: 5px;">
+                        <!-- <el-row style="margin-top: 5px;">
                             <el-card class="box-card" shadow="hover">
                                 <el-table :header-cell-style="{'height':'30px'}" ref="multipleTable" :data="tableData"
                                     height="250" stripe border style="width: 100%" max-height="250"
@@ -271,7 +283,7 @@
                                     </el-table-column>
                                 </el-table>
                             </el-card>
-                        </el-row>
+                        </el-row> -->
                     </el-main>
                 </el-container>
             </el-main>
@@ -289,7 +301,10 @@
                         <el-table stripe border v-loading="proc_loading" element-loading-text="拼命加载中"
                             element-loading-spinner="el-icon-loading" element-loading-background="rgba(0, 0, 0, 0.8)"
                             :data="process_list.filter(data => !search || (JSON.stringify(data).toLowerCase()).includes(search.toLowerCase()))"
-                            style="width: 100%" max-height="600" :default-sort="{prop: 'MemUsed', order: 'descending'}">
+                            style="width: 100%" max-height="600" :default-sort="{prop: 'MemUsed', order: 'descending'}"
+                            size="mini" tooltip-effect="dark">
+                            <el-table-column type="index">
+                            </el-table-column>
                             <el-table-column prop="Pid" label="Pid" leba sortable width="180">
                             </el-table-column>
                             <el-table-column prop="Ppid" label="Ppid" leba sortable width="180">
@@ -302,9 +317,9 @@
                             <el-table-column prop="Cpu_Percent" label="Cpu_Percent" width="180" :sort-method="sort_cpu"
                                 sortable>
                             </el-table-column>
-                            <el-table-column prop="Cmdline" label="Cmdline">
+                            <el-table-column prop="Cmdline" label="Cmdline" :show-overflow-tooltip="true">
                                 <template slot="header" slot-scope="scope">
-                                    <el-input v-model="search" size="mini" placeholder="输入关键字搜索" />
+                                    <el-input v-model="search" size="mini" placeholder="输入关键字搜索" clearable />
                                 </template>
                             </el-table-column>
                         </el-table>
@@ -316,57 +331,6 @@
     <script src="js/plotly-latest.min.js"></script>
     <script>
         var webSocket
-
-        function genColorByPid(pid) {
-            return '#' + Math.floor(('0.' + (pid + 1)) * 16777215).toString(16);
-        }
-
-        function initWebSocket() {
-            webSocket.onopen = webSocketOpen;
-            webSocket.onmessage = webSocketMessage;
-            webSocket.onclose = webSocketClose;
-            webSocket.onerror = webSocketError;
-        }
-
-        function webSocketOpen() {
-            console.log("WebSocket连接成功")
-            webSocket.send(JSON.stringify({
-                reqType: 10001
-            })) // 请求hosts
-            webSocket.send(JSON.stringify({
-                reqType: 10002
-            })) // 请求groups
-        }
-
-        function webSocketMessage(e) {
-            console.log(e.data)
-        }
-
-        function webSocketClose() {
-            console.log("WebSocket关闭");
-        }
-
-        function webSocketError() {
-            console.log("WebSocket连接失败");
-        }
-
-        function exist(s, val) {
-            for (i in val) {
-                if (s.name == val[i].pid) {
-                    return true
-                }
-            }
-            return false
-        }
-
-        function table_exist(s, val) {
-            for (i in val) {
-                if (s == val[i].pid) {
-                    return true
-                }
-            }
-            return false
-        }
 
         // Vue.js
         var vm = new Vue({
@@ -393,13 +357,11 @@
                 lastTimeOption: "Last 5 minutes",
                 lastTimeOptions: {
                     "Last 5 minutes": 5,
-                    "Last 15 minutes": 15,
                     "Last 30 minutes": 30,
                     "Last 1 hour": 60,
-                    "Last 2 hour": 2 * 60,
-                    "Last 3 hour": 3 * 60,
                     "Last 5 hour": 5 * 60,
                     "Last 1 day": 24 * 60,
+                    "Last 7 day": 7 * 24 * 60,
                 }
             },
             mounted() {
@@ -493,7 +455,7 @@
                         success: function (res) {
                             handle_process_data(res)
                             vmm.querying = false
-                            if (callback)
+                            if (typeof callback == "function")
                                 callback()
                         },
                         dataType: 'json'
@@ -523,175 +485,23 @@
             }
         });
 
-
-        function checkAllowedRun() {
-            vm.allowedRun = editor.getValue().trim() && (vm.selectHostNodes.length > 0 || vm.selectGroupNodes.length > 0)
-        }
-
-        function formatdate(value) {
-            let fmt = "YYYY-mm-dd HH:MM:SS";
-            var date = new Date(value);
-            let ret;
-            const opt = {
-                "Y+": date.getFullYear().toString(), // 年
-                "m+": (date.getMonth() + 1).toString(), // 月
-                "d+": date.getDate().toString(), // 日
-                "H+": date.getHours().toString(), // 时
-                "M+": date.getMinutes().toString(), // 分
-                "S+": date.getSeconds().toString() // 秒
-            };
-            for (let k in opt) {
-                ret = new RegExp("(" + k + ")").exec(fmt);
-                if (ret) {
-                    fmt = fmt.replace(ret[1], (ret[1].length == 1) ? (opt[k]) : (opt[k].padStart(ret[1].length, "0")))
-                };
-            };
-            return fmt
-        }
-
-
-        var tms = []
-        var last = 0
-        var pids = new Set()
-        var option = null
-        var seriesfull = []
-        var memChart = echarts.init(document.getElementById("mempanle"));
-        var cpuChart = echarts.init(document.getElementById("cpupanle"));
-
         function handle_process_data(data) {
-            var data_map = {}
-            tms = []
-            pids = new Set()
-            vm.tableData = []
+            var mem_map = {}
+            var cpu_map = {}
+            var tms = []
+            var last = 0
             for (d in data) {
                 t = data[d][0] * 1000
-                pid = data[d][1]
-                pname = data[d][2]
-                mem = data[d][3]
+
                 if (last != t) {
                     tms.push(t)
                     last = t
                 }
-                if (!data_map[pid]) {
-                    data_map[pid] = []
-                }
-                data_map[pid].push([t, mem])
-                if (!pids.has(pid)) {
-                    vm.tableData.push({
-                        pid: pid,
-                        pname: pname
-                    })
-                    pids.add(pid)
-                }
+                pushData(mem_map, data[d][1], t, data[d][3])
+                pushData(cpu_map, data[d][1], t, data[d][4])
             }
-            // gen seris
-            var series = []
-
-
-            for (pid in data_map) {
-                var c = genColorByPid(pid)
-                var ss = {
-                    name: pid,
-                    type: 'line',
-                    smooth: true,
-                    symbol: 'none',
-                    showSymbol: false,
-                    sampling: 'average',
-                    itemStyle: {
-                        color: c
-                    },
-                    areaStyle: {
-                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
-                            offset: 0,
-                            color: c
-                        }, {
-                            offset: 1,
-                            color: '#ffe'
-                        }])
-                    },
-                    data: data_map[pid]
-                }
-                series.push(ss)
-                seriesfull.push(ss)
-            }
-            option = {
-                tooltip: {
-                    trigger: 'axis',
-                    axisPointer: {
-                        type: 'cross',
-                        snap: true,
-                        label: {
-                            margin: 20,
-                        }
-                    },
-                    formatter: (params) => {
-                        params.sort(function (a, b) {
-                            return b.data[1] - a.data[1]
-                        })
-                        var d = []
-                        d.push(formatdate(params[0].axisValue) + '<br>')
-                        params.forEach(e => {
-                            d.push('<span style="display:inline-block;margin-right:5px;border-radius:10px;width:10px;height:10px;background-color:' + e.color + ';"></span> ' + e.seriesName + ' : ' + e.data[1])
-                        })
-                        return d.join('<br>')
-                    },
-                    extraCssText: 'box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);',
-                    position: function (pt) {
-                        return [pt[0], '10%'];
-                    }
-                },
-                title: {
-                    left: 'center',
-                    text: 'Memory Used For Every Process',
-                },
-                toolbox: {
-                    feature: {
-                        dataZoom: {
-                            yAxisIndex: 'none'
-                        },
-                        restore: {},
-                        saveAsImage: {}
-                    }
-                },
-                xAxis: {
-                    type: 'time',
-                    boundaryGap: false,
-                    interval: vm.lastTimeOptions[vm.lastTimeOption] * 12 * 1000,
-                    data: tms,
-                    axisLabel: {
-                        formatter: function (value, index) {
-                            return formatdate(value);
-                        }
-                    },
-                    axisPointer: {
-                        lineStyle: {
-                            color: '#004E52',
-                            opacity: 0.5,
-                            width: 2
-                        },
-                        label: {
-                            show: true,
-                            formatter: function (params) {
-                                return echarts.format.formatTime('yyyy-MM-dd hh:mm:ss', params.value);
-                            },
-                            backgroundColor: '#004E52'
-                        }
-                    },
-                },
-                yAxis: {
-                    type: 'value',
-                    boundaryGap: [0, '100%']
-                },
-                dataZoom: [{
-                    type: 'inside',
-                    throttle: 50
-                }],
-                series: series
-            }
-            if (option && typeof option === "object") {
-                memChart.setOption(option, true);
-                cpuChart.setOption(option, true);
-            }
+            render("mempanle", tms, genSeries(mem_map), 'Memory Used of Every Process')
+            render("cpupanle", tms, genSeries(cpu_map), 'CPU Percent of Every Process')
         }
     </script>
 </body>
