@@ -2,13 +2,19 @@ var chart_store = {}
 
 function render(id, xdata, series, title) {
     option = {
+        grid: {
+            // top: "0px",
+            // bottom: "0px",
+            left: "70px",
+            right: "60px",
+        },
         tooltip: {
             trigger: 'axis',
             axisPointer: {
                 type: 'cross',
                 snap: true,
                 label: {
-                    margin: 20,
+                    margin: 50,
                 }
             },
             formatter: (params) => {
@@ -16,9 +22,9 @@ function render(id, xdata, series, title) {
                     return b.data[1] - a.data[1]
                 })
                 var d = []
-                d.push(formatdate(params[0].axisValue) + '<br>')
+                d.push(formatdate(params[0].axisValue))
                 params.forEach(e => {
-                    d.push('<span style="display:inline-block;margin-right:5px;border-radius:10px;width:10px;height:10px;background-color:' + e.color + ';"></span> ' + e.seriesName + ' : ' + e.data[1])
+                    d.push('<div style="display:inline-block;margin-right:5px;border-radius:10px;width:10px;height:10px;background-color:' + e.color + ';"></div> ' + e.seriesName + ' : ' + e.data[1] + '')
                 })
                 return d.join('<br>')
             },
