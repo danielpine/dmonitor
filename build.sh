@@ -5,5 +5,8 @@ pyinstaller -F server.py `ls *.py | grep -v server.py | xargs`
 #--hidden-import=gunicorn.glogging     --hidden-import=gunicorn.workers.sync
 
 cd ./dist 
-zip -r dmonitor_`date +%Y%m%d_%H%M%S`.zip server ../static/*
-
+mkdir dmonitor
+cp server dmonitor/
+cp -r ../static dmonitor/
+tar zcvf dmonitor.tgz dmonitor
+rm -rf dmonitor

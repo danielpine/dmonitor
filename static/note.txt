@@ -1,0 +1,6 @@
+[编译安装Python3.7.0]
+yum install openssl-devel bzip2-devel expat-devel gdbm-devel readline-devel sqlite-devel  libffi-devel
+tar -xvf Python-3.7.0.tar.xz
+./configure --enable-shared
+make -j8
+make install
