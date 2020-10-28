@@ -6,33 +6,29 @@
     <title>Orange</title>
     <style type="text/css">
         @import url("lib/element-ui/theme-chalk/index.css");
+
         body {
             margin: 0;
             padding: 0;
             border: none;
+            background-color: aliceblue;
         }
-        
-        .el-header {
-            background-color: #B3C0D1;
-            color: #333;
-            line-height: 60px;
-        }
-        
+
         .el-aside {
             color: #fff;
         }
-        
+
         .el-menu-item i {
             color: #fff;
         }
-        
+
         .el-menu-item.is-active {
             background-color: #152780 !important;
         }
-        
+
+        /* 避免为渲染前显示vue代码 */
         [v-cloak] {
             display: none;
-            /* 避免为渲染前显示vue代码 */
         }
     </style>
 </head>
@@ -42,9 +38,12 @@
     <script src="lib/element-ui/index.js"></script>
     <div id="app" v-cloak style="overflow: hidden;">
         <el-container>
-            <el-aside :style="{'background-color': '#1e3799', width: isCollapse ? '65px' : '200px', height: '100vh', position: 'fixed'}">
+            <el-aside
+                :style="{'background-color': '#1e3799', width: isCollapse ? '65px' : '200px', height: '100vh', position: 'fixed'}">
                 <div style="width: 40px; height: 40px; margin: 12px;" :style="logo()"></div>
-                <el-menu default-active="0" @select="selectItem" background-color="#1e3799" text-color="#fff" active-text-color="#00ff9c" :collapse-transition=false :collapse="isCollapse" style="border-right: none">
+                <el-menu default-active="0" @select="selectItem" background-color="#1e3799" text-color="#fff"
+                    active-text-color="#00ff9c" :collapse-transition=false :collapse="isCollapse"
+                    style="border-right: none">
                     <el-menu-item index="0">
                         <i class="el-icon-orange"></i>
                         <span slot="title">Monitor</span>
@@ -74,12 +73,16 @@
                         <span slot="title">Document</span>
                     </el-menu-item>
                 </el-menu>
-                <el-button style="margin-left: 24px; font-size: 18px; position: fixed; bottom: 0; color: #fff" type="text" @click="toggle()">
+                <el-button style="margin-left: 24px; font-size: 18px; position: fixed; bottom: 0; color: #fff"
+                    type="text" @click="toggle()">
                     <i :class="{ 'el-icon-arrow-right': isCollapse, 'el-icon-arrow-left': !isCollapse }"></i>
                 </el-button>
             </el-aside>
-            <el-main v-loading="loading" element-loading-text="Loading..." element-loading-spinner="el-icon-loading" element-loading-background="rgba(0, 0, 0, 0.8)" :style="{'margin-left': isCollapse ? '65px' : '200px', height: '100vh', padding: 0}" style="overflow: hidden;">
-                <iframe frameborder="0" id="iframe" style="width: 100%; height: 100%" :src="activeUrl"></iframe>
+            <el-main v-loading="loading" element-loading-text="Loading..." element-loading-spinner="el-icon-loading"
+                element-loading-background="rgba(0, 0, 0, 0.5)" 
+                :style="{'margin-left': isCollapse ? '65px' : '200px', height: '100vh', padding: 0}"
+                style="overflow: hidden;">
+                <iframe frameborder="0"  id="iframe" style="width: 100%; height: 100%" :src="activeUrl"></iframe>
             </el-main>
         </el-container>
     </div>

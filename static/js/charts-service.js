@@ -3,10 +3,10 @@ var chart_store = {}
 function render(id, xdata, series, title) {
     option = {
         grid: {
-            // top: "0px",
             // bottom: "0px",
-            left: "70px",
-            right: "60px",
+            top: "30px",
+            left: "60px",
+            right: "30px",
         },
         tooltip: {
             trigger: 'axis',
@@ -23,14 +23,15 @@ function render(id, xdata, series, title) {
                 })
                 var d = []
                 d.push(formatdate(params[0].axisValue))
+                d.push('<table style="width:100%;">')
                 params.forEach(e => {
-                    d.push('<div style="display:inline-block;margin-right:5px;border-radius:10px;width:10px;height:10px;background-color:' + e.color + ';"></div> ' + e.seriesName + ' : ' + e.data[1] + '')
+                    d.push('<tr style="height:5px;line-height:10px">')
+                    d.push('<td width:10px;><span class=rect style="background-color:' + e.color + ';"></span></td><td style="text-align:left;">'
+                        + e.seriesName + ':</td><td style="text-align:right;">' + e.data[1] + '</td>')
+                    d.push('</tr>')
                 })
-                return d.join('<br>')
-            },
-            extraCssText: 'box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);',
-            position: function (pt) {
-                return [pt[0], '10%'];
+                d.push('</table>')
+                return d.join('')
             }
         },
         title: {
@@ -58,12 +59,17 @@ function render(id, xdata, series, title) {
         },
         xAxis: {
             type: 'time',
-            boundaryGap: false,
-            interval: vm.lastTimeOptions[vm.lastTimeOption] * 12 * 1000,
-            data: xdata,
+            min: 'dataMin',
+            max: 'dataMax',
+            minInterval: 1,
+            maxInterval: 3600 * 24 * 1000,
+            boundaryGap: ['20%', '20%'],
+            interval: 10 * 1000,
+            // data: xdata,
             axisLabel: {
                 formatter: function (value, index) {
-                    return formatdate(value);
+                    // return formatdate(value);
+                    return echarts.format.formatTime('hh:mm:ss', value);
                 }
             },
             axisPointer: {
