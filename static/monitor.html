@@ -1,245 +1,242 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>Monitor</title>
     <style type="text/css">
-        @import url("lib/element-ui/theme-chalk/index.css");
+      @import url("lib/element-ui/theme-chalk/index.css");
 
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: aliceblue
-        }
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: aliceblue;
+      }
 
-        h1 {
-            color: #333;
-            height: 64px;
-            min-width: 300px;
-            margin: 0;
-            padding: 0;
-        }
+      h1 {
+        color: #333;
+        height: 64px;
+        min-width: 300px;
+        margin: 0;
+        padding: 0;
+      }
 
-        p {
-            color: #999;
-        }
+      p {
+        color: #999;
+      }
 
+      .el-table th > .cell {
+        padding: 0 14px;
+      }
 
+      .el-table td,
+      .el-table th {
+        padding: 3px 0;
+      }
 
-        .el-table th>.cell {
-            padding: 0 14px;
-        }
+      .host_status {
+        margin: auto;
+        width: 10px;
+        height: 10px;
+        border-radius: 5px;
+      }
 
-        .el-table td,
-        .el-table th {
-            padding: 3px 0;
-        }
+      .host_status_1 {
+        background-color: lawngreen;
+      }
 
-        .host_status {
-            margin: auto;
-            width: 10px;
-            height: 10px;
-            border-radius: 5px;
-        }
+      .host_status_0 {
+        background-color: firebrick;
+      }
 
-        .host_status_1 {
-            background-color: lawngreen;
-        }
+      #title {
+        padding: 0 10px;
+        height: 64px;
+        line-height: 64px;
+        border-bottom: 1px solid gainsboro;
+      }
 
-        .host_status_0 {
-            background-color: firebrick;
-        }
+      .el_col {
+        padding: 0 10px;
+        height: 100%;
+      }
 
-        #title {
-            padding: 0 10px;
-            height: 64px;
-            line-height: 64px;
-            border-bottom: 1px solid gainsboro;
-        }
+      .el_col_left {
+        border-right: 1px gainsboro dashed;
+        height: calc(100vh - 65px);
+        overflow: scroll;
+      }
 
-        .el_col {
-            padding: 0 10px;
-            height: 100%;
-        }
+      .el_col_right {
+        height: calc(100vh - 65px);
+        overflow: scroll;
+        padding-bottom: 10px;
+      }
 
-        .el_col_left {
-            border-right: 1px gainsboro dashed;
-            height: calc(100vh - 65px);
-            overflow: scroll;
-        }
+      .el-card__body {
+        padding: 0 20px;
+      }
 
-        .el_col_right {
-            height: calc(100vh - 65px);
-            overflow: scroll;
-            padding-bottom: 10px;
-        }
+      pre {
+        margin: 0;
+        padding: 2px 20px;
+      }
 
-        .el-card__body {
-            padding: 0 20px;
-        }
+      .output_title {
+        font-size: 13px;
+        color: forestgreen;
+      }
 
-        pre {
-            margin: 0;
-            padding: 2px 20px;
-        }
+      .output_title_inner {
+        font-size: 11px;
+        color: forestgreen;
+      }
 
-        .output_title {
-            font-size: 13px;
-            color: forestgreen;
-        }
+      .host_group_title {
+        margin-top: 15px;
+        border-top: 1px gainsboro dashed;
+        padding-top: 10px;
+      }
 
-        .output_title_inner {
-            font-size: 11px;
-            color: forestgreen;
-        }
+      .btn_fixed {
+        position: absolute;
+        z-index: 99;
+        font-size: 20px;
+        top: -2px;
+      }
 
-        .host_group_title {
-            margin-top: 15px;
-            border-top: 1px gainsboro dashed;
-            padding-top: 10px;
-        }
+      .btn_fixed_run:hover,
+      .btn_fixed_run:focus {
+        color: forestgreen;
+      }
 
-        .btn_fixed {
-            position: absolute;
-            z-index: 99;
-            font-size: 20px;
-            top: -2px;
-        }
+      .btn_fixed_refresh:hover,
+      .btn_fixed_refresh:focus {
+        color: #66b1ff;
+      }
 
-        .btn_fixed_run:hover,
-        .btn_fixed_run:focus {
-            color: forestgreen;
-        }
+      .btn_fixed_run {
+        right: 40px;
+        color: forestgreen;
+      }
 
-        .btn_fixed_refresh:hover,
-        .btn_fixed_refresh:focus {
-            color: #66b1ff;
-        }
+      .btn_fixed_refresh {
+        right: 10px;
+        color: #66b1ff;
+      }
 
-        .btn_fixed_run {
-            right: 40px;
-            color: forestgreen;
-        }
+      [v-cloak] {
+        display: none;
+      }
 
-        .btn_fixed_refresh {
-            right: 10px;
-            color: #66b1ff;
-        }
+      .el-table--enable-row-transition .el-table__body td {
+        padding: 0;
+      }
 
-        [v-cloak] {
-            display: none;
-        }
+      .smallTable .el-table td,
+      .el-table th {
+        padding: 0;
+      }
 
-        .el-table--enable-row-transition .el-table__body td {
-            padding: 0;
-        }
+      .el-card__body {
+        padding: 0;
+      }
 
-        .smallTable .el-table td,
-        .el-table th {
-            padding: 0;
-        }
+      .clr_chs_btn {
+        font-size: 18px;
+        position: fixed;
+        top: 0;
+        padding: 22px 0;
+      }
 
-        .el-card__body {
-            padding: 0;
-        }
+      .clr_chs_btn_left {
+        right: 64px;
+      }
 
-        .clr_chs_btn {
-            font-size: 18px;
-            position: fixed;
-            top: 0;
-            padding: 22px 0;
-        }
+      .clr_chs_btn_right {
+        right: 32px;
+      }
 
-        .clr_chs_btn_left {
-            right: 64px;
-        }
+      .clr_chs_btn_div {
+        height: 16px;
+        width: 32px;
+      }
 
-        .clr_chs_btn_right {
-            right: 32px;
-        }
+      .clr_chs_btn_div_left {
+        background-color: rgb(31, 31, 31);
+      }
 
-        .clr_chs_btn_div {
-            height: 16px;
-            width: 32px;
-        }
+      .clr_chs_btn_div_right {
+        background-color: rgb(235, 238, 244);
+      }
 
-        .clr_chs_btn_div_left {
-            background-color: rgb(31, 31, 31);
-        }
+      #editor {
+        position: relative;
+        border-radius: 4px;
+      }
 
-        .clr_chs_btn_div_right {
-            background-color: rgb(235, 238, 244);
-        }
+      .sticky_title {
+        position: sticky;
+        top: 0;
+        padding: 0 20px;
+      }
 
-        #editor {
-            position: relative;
-            border-radius: 4px;
-        }
+      .title_btm_dashed {
+        border-bottom: 1px dashed rgb(235, 238, 244);
+      }
 
-        .sticky_title {
-            position: sticky;
-            top: 0;
-            padding: 0 20px;
-        }
+      .px250_scroll {
+        max-height: 250px;
+        overflow: scroll;
+      }
 
-        .title_btm_dashed {
-            border-bottom: 1px dashed rgb(235, 238, 244);
-        }
+      .grp_inner_bdr_top {
+        border: none;
+        border-top: 1px solid rgb(235, 238, 244);
+        border-radius: 0;
+      }
 
-        .px250_scroll {
-            max-height: 250px;
-            overflow: scroll;
-        }
+      .margin_top_10px {
+        margin-top: 10px;
+      }
 
-        .grp_inner_bdr_top {
-            border: none;
-            border-top: 1px solid rgb(235, 238, 244);
-            border-radius: 0;
-        }
+      .box-card {
+        width: 100%;
+      }
 
-        .margin_top_10px {
-            margin-top: 10px;
-        }
+      .el-header {
+        line-height: 60px;
+      }
 
-        .box-card {
-            width: 100%;
-        }
+      .el-header,
+      .el-footer,
+      .el-main {
+        background-color: aliceblue;
+        color: #000;
+      }
 
-        .el-header {
-            line-height: 60px;
-        }
+      .el-tooltip__popper {
+        max-width: 30%;
+      }
 
-        .el-header,
-        .el-footer,
-        .el-main {
-            background-color: aliceblue;
-            color: #000;
-        }
+      .el-tooltip__popper,
+      .el-tooltip__popper.is-dark {
+        background: #0c0c0c !important;
+        color: #e2e5eb !important;
+      }
 
-        .el-tooltip__popper {
-            max-width: 30%;
-        }
-
-        .el-tooltip__popper,
-        .el-tooltip__popper.is-dark {
-            background: #0c0c0c !important;
-            color: #e2e5eb !important;
-        }
-
-        .rect {
-            width: 10px;
-            height: 3px;
-            margin-right: 5px;
-            text-align: center;
-            display: block;
-            background-repeat: no-repeat;
-            background-position: 0 0;
-        }
+      .rect {
+        width: 10px;
+        height: 3px;
+        margin-right: 5px;
+        text-align: center;
+        display: block;
+        background-repeat: no-repeat;
+        background-position: 0 0;
+      }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
     <script type="text/javascript" src="lib/vue/vue.js"></script>
     <script type="text/javascript" src="lib/element-ui/index.js"></script>
     <script type="text/javascript" src="js/jquery-2.1.1.min.js"></script>
@@ -255,275 +252,320 @@
     <script type="text/javascript" src="js/charts-service.js"></script>
     <script type="text/javascript" src="js/websocket-service.js"></script>
     <div id="app" v-cloak>
-        <el-container>
-            <el-main style="padding: 0;min-width: 800px;">
-                <el-header style="width: 100%;height: 64px;">
-                    <el-row>
-                        <el-col style="text-align:left;" :span=6>
-                            <h1>Orange Resource Monitor</h1>
-                        </el-col>
-                        <el-col style="text-align:right;" :span=18>
-                            <el-input title="Process Filter" size="mini" style="width: 160px;margin-right: 20px;"
-                                v-model="processfilter" clearable></el-input>
-                            <el-select title="Ranges" size="mini" style="width: 160px;margin-right: 20px;"
-                                v-model="lastTimeOption" placeholder="" v-on:change=query_range>
-                                <el-option v-for="v,k in lastTimeOptions" :key="k" :label="k" :value="k"></el-option>
-                            </el-select>
-                            <el-button title="Refresh" type="success" size="mini" circle icon="el-icon-refresh"
-                                style="margin-right: 2px;" :loading="querying" @click="query_range"></el-button>
-                            <el-button @click="edit_conf" type="primary" size="mini" icon="el-icon-edit" circle />
-                        </el-col>
-                    </el-row>
-                </el-header>
-                <el-container style="width: 100%; margin-top: 0;">
-                    <el-main style="width: 100%;height: 100%;">
-                        <el-row style="width: 100%; ">
-                            <el-card class="box-card" shadow="hover">
-                                <div id="cpupanle" style="height: 380px;width: 100%;"></div>
-                            </el-card>
-                        </el-row>
-                        <el-row style="width: 100%; margin-top: 5px;">
-                            <el-card class="box-card" shadow="hover">
-                                <div id="mempanle" style="height: 380px;width: 100%;"></div>
-                            </el-card>
-                        </el-row>
-                        <!-- <el-row style="margin-top: 5px;">
-                            <el-card class="box-card" shadow="hover">
-                                <el-table :header-cell-style="{'height':'30px'}" ref="multipleTable" :data="tableData"
-                                    height="250" stripe border style="width: 100%" max-height="250"
-                                    @selection-change="handleSelectionChange">
-                                    <el-table-column type="selection" width="55">
-                                    </el-table-column>
-                                    <el-table-column type="index" label="#" width="100">
-                                    </el-table-column>
-                                    <el-table-column prop="pid" label="PID" sortable>
-                                    </el-table-column>
-                                    <el-table-column prop="pname" label="PNAME" sortable>
-                                    </el-table-column>
-                                </el-table>
-                            </el-card>
-                        </el-row> -->
-                    </el-main>
-                </el-container>
+      <el-container>
+        <el-main style="padding: 0; min-width: 800px">
+          <el-header style="width: 100%; height: 64px">
+            <el-row>
+              <el-col style="text-align: left" :span="6">
+                <account> </account>
+              </el-col>
+              <el-col style="text-align: right" :span="18">
+                <el-input
+                  title="Process Filter"
+                  size="mini"
+                  style="width: 160px; margin-right: 20px"
+                  v-model="processfilter"
+                  clearable
+                ></el-input>
+                <el-select
+                  title="Ranges"
+                  size="mini"
+                  style="width: 160px; margin-right: 20px"
+                  v-model="lastTimeOption"
+                  placeholder=""
+                  v-on:change="query_range"
+                >
+                  <el-option
+                    v-for="v,k in lastTimeOptions"
+                    :key="k"
+                    :label="k"
+                    :value="k"
+                  ></el-option>
+                </el-select>
+                <el-button
+                  title="Refresh"
+                  type="success"
+                  size="mini"
+                  circle
+                  icon="el-icon-refresh"
+                  style="margin-right: 2px"
+                  :loading="querying"
+                  @click="query_range"
+                ></el-button>
+                <el-button
+                  @click="edit_conf"
+                  type="primary"
+                  size="mini"
+                  icon="el-icon-edit"
+                  circle
+                />
+              </el-col>
+            </el-row>
+          </el-header>
+          <el-container style="width: 100%; margin-top: 0">
+            <el-main style="width: 100%; height: 100%">
+              <el-row style="width: 100%">
+                <el-card class="box-card" shadow="hover">
+                  <div id="cpupanle" style="height: 380px; width: 100%"></div>
+                </el-card>
+              </el-row>
+              <el-row style="width: 100%; margin-top: 5px">
+                <el-card class="box-card" shadow="hover">
+                  <div id="mempanle" style="height: 380px; width: 100%"></div>
+                </el-card>
+              </el-row>
             </el-main>
-        </el-container>
-        <el-drawer title="我是标题" :visible.sync="drawer" size="80%" :with-header="false">
-            <h3>Configuration</h3>
-            <el-tabs type="border-card" @tab-click=tab_click>
-                <el-tab-pane label="进程监控">
-                    <div style="height: 600px">
-                        进程监控
-                    </div>
-                </el-tab-pane>
-                <el-tab-pane label="实时进程">
-                    <div style="height: 600px;">
-                        <el-table stripe border v-loading="proc_loading" element-loading-text="拼命加载中"
-                            element-loading-spinner="el-icon-loading" element-loading-background="rgba(0, 0, 0, 0.8)"
-                            :data="process_list.filter(data => !search || (JSON.stringify(data).toLowerCase()).includes(search.toLowerCase()))"
-                            style="width: 100%" max-height="600" :default-sort="{prop: 'MemUsed', order: 'descending'}"
-                            size="mini" tooltip-effect="dark">
-                            <el-table-column type="index">
-                            </el-table-column>
-                            <el-table-column prop="Pid" label="Pid" leba sortable width="180">
-                            </el-table-column>
-                            <el-table-column prop="Ppid" label="Ppid" leba sortable width="180">
-                            </el-table-column>
-                            <el-table-column prop="Name" label="Name" sortable width="180">
-                            </el-table-column>
-                            <el-table-column prop="MemUsed" label="MemUsed" width="180" :sort-method="sort_mem"
-                                sortable>
-                            </el-table-column>
-                            <el-table-column prop="Cpu_Percent" label="Cpu_Percent" width="180" :sort-method="sort_cpu"
-                                sortable>
-                            </el-table-column>
-                            <el-table-column prop="Cmdline" label="Cmdline" :show-overflow-tooltip="true">
-                                <template slot="header" slot-scope="scope">
-                                    <el-input v-model="search" size="mini" placeholder="输入关键字搜索" clearable />
-                                </template>
-                            </el-table-column>
-                        </el-table>
-                    </div>
-                </el-tab-pane>
-            </el-tabs>
-        </el-drawer>
+          </el-container>
+        </el-main>
+      </el-container>
+      <el-drawer
+        title="我是标题"
+        :visible.sync="drawer"
+        size="80%"
+        :with-header="false"
+      >
+        <h3>Configuration</h3>
+        <el-tabs type="border-card" @tab-click="tab_click">
+          <el-tab-pane label="进程监控">
+            <div style="height: 600px">进程监控</div>
+          </el-tab-pane>
+          <el-tab-pane label="实时进程">
+            <process-list
+              :process_list="process_list"
+              :proc_loading="proc_loading"
+            ></process-list>
+          </el-tab-pane>
+          <el-tab-pane label="参数配置">
+            <div style="height: 600px">参数配置</div>
+          </el-tab-pane>
+        </el-tabs>
+      </el-drawer>
     </div>
     <script src="js/plotly-latest.min.js"></script>
     <script src="js/color-hash.js"></script>
     <script src="js/colors-gen.js"></script>
     <script>
-        var webSocket
-        // Vue.js
-        var vm = new Vue({
-            el: "#app",
-            data: {
-                hostNodes: [],
-                process_list: [],
-                search: '',
-                proc_loading: false,
-                drawer: false,
-                selectHostNodes: [],
-                hostsOutput: [],
-                groupNodes: [],
-                selectGroupNodes: [],
-                groupsOutput: [],
-                executing: false,
-                querying: false,
-                allowedRun: false,
-                theme: 'white',
-                useWebSocket: true,
-                tableData: [],
-                multipleSelection: [],
-                processfilter: "Code.exe",
-                lastTimeOption: "Last 5 minutes",
-                lastTimeOptions: {
-                    "Last 5 minutes": 5,
-                    "Last 30 minutes": 30,
-                    "Last 1 hour": 60,
-                    "Last 5 hour": 5 * 60,
-                    "Last 1 day": 24 * 60,
-                    "Last 7 day": 7 * 24 * 60,
+      var webSocket;
+
+      function load_page(href) {
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.open("GET", href, false);
+        xmlhttp.send();
+        return xmlhttp.responseText;
+      }
+      Vue.component("account", {
+        template: "<h1>Orange Resource Monitor</h1>", // template 是 Vue 中的关键字，不能改。
+      });
+
+      // Vue.js
+      var vm = new Vue({
+        el: "#app",
+        data: {
+          hostNodes: [],
+          process_list: [],
+          proc_loading: false,
+          drawer: false,
+          selectHostNodes: [],
+          hostsOutput: [],
+          groupNodes: [],
+          selectGroupNodes: [],
+          groupsOutput: [],
+          executing: false,
+          querying: false,
+          allowedRun: false,
+          theme: "white",
+          useWebSocket: true,
+          tableData: [],
+          multipleSelection: [],
+          processfilter: "Code.exe",
+          lastTimeOption: "Last 5 minutes",
+          lastTimeOptions: {
+            "Last 5 minutes": 5,
+            "Last 30 minutes": 30,
+            "Last 1 hour": 60,
+            "Last 5 hour": 5 * 60,
+            "Last 1 day": 24 * 60,
+            "Last 7 day": 7 * 24 * 60,
+          },
+        },
+        mounted() {
+          this.query_range(function () {
+            window.parent.vm.loading = false;
+          });
+        },
+        created() {
+          if ("WebSocket" in window) {
+            this.useWebSocket = true;
+            webSocket = new WebSocket(
+              "ws://" + window.location.host + "/orange"
+            );
+            initWebSocket();
+            console.log("Support webSocket");
+          } else {
+            this.useWebSocket = false;
+            console.log("Not support webSocket");
+          }
+        },
+        methods: {
+          tab_click: function (tab, event) {
+            var vmm = this;
+            if (tab.label == "实时进程") {
+              vmm.proc_loading = true;
+              Plotly.d3.csv("/query_process", function (err, rows) {
+                vmm.process_list = rows;
+                vmm.proc_loading = false;
+              });
+            }
+          },
+          edit_conf: function () {
+            this.drawer = true;
+          },
+          toggleSelection(rows) {
+            if (rows) {
+              rows.forEach((row) => {
+                this.$refs.multipleTable.toggleRowSelection(row);
+              });
+            } else {
+              this.$refs.multipleTable.clearSelection();
+            }
+          },
+          handleSelectionChange(val) {
+            this.multipleSelection = val;
+            if (option && typeof option === "object") {
+              var series = [];
+              for (s in seriesfull) {
+                if (exist(seriesfull[s], val)) {
+                  series.push(seriesfull[s]);
                 }
-            },
-            mounted() {
-                this.query_range(function () {
-                    window.parent.vm.loading = false
-                })
-            },
-            created() {
-                if ('WebSocket' in window) {
-                    this.useWebSocket = true
-                    webSocket = new WebSocket('ws://' + window.location.host + '/orange');
-                    initWebSocket();
-                    console.log('Support webSocket')
-                } else {
-                    this.useWebSocket = false
-                    console.log('Not support webSocket')
-                }
+              }
+              option.series = series;
+              memChart.setOption(option, true);
+              cpuChart.setOption(option, true);
+            }
+          },
+          handleHostSelectionChange(val) {
+            vm.selectHostNodes = val;
+            console.log(vm.selectHostNodes);
+            checkAllowedRun();
+          },
+          handleGroupSelectionChange(val) {
+            vm.selectGroupNodes = val;
+            console.log(vm.selectGroupNodes);
+            checkAllowedRun();
+          },
+          checkSelectable(row, index) {
+            return row.status == 1;
+          },
+          query_range(callback) {
+            var now = parseInt(new Date().getTime() / 1000);
+            var vmm = this;
+            this.querying = true;
+            $.ajax({
+              type: "GET",
+              url:
+                "/query_range" +
+                "?start=" +
+                (now - vmm.lastTimeOptions[vmm.lastTimeOption] * 60) +
+                "&end=" +
+                now +
+                "&processfilter=" +
+                vmm.processfilter,
+              async: true,
+              cache: false,
+              error: function (request) {
+                vmm.notification(
+                  vm.$t("msg.data_loading_error"),
+                  vm.$t("msg.net_error"),
+                  "bottom-right",
+                  "error"
+                );
+              },
+              success: function (res) {
+                handle_process_data(res);
+                vmm.querying = false;
+                if (typeof callback == "function") callback();
+              },
+              dataType: "json",
+            });
+          },
+          send: function () {
+            let data = {
+              reqType: 10003,
+              target: {
+                hosts: vm.selectHostNodes,
+                groups: vm.selectGroupNodes,
+              },
+              commands: {
+                code: 1000,
+                cmds: [editor.getValue()],
+              },
+            };
+            webSocket.send(JSON.stringify(data));
+          },
+          resetCmds() {
+            editor.setValue("");
+          },
+          changeTheme(theme) {
+            this.theme = theme;
+            editor.setTheme(
+              theme == "white" ? "ace/theme/xcode" : "ace/theme/monokai"
+            );
+          },
+        },
+        components: {
+          processList: {
+            props: ["process_list", "proc_loading"],
+            data() {
+              return {
+                search: "",
+              };
             },
             methods: {
-                tab_click: function (tab, event) {
-                    var vmm = this
-                    vmm.proc_loading = true
-                    if (tab.label == "实时进程") {
-                        Plotly.d3.csv("/query_process", function (err, rows) {
-                            vmm.process_list = rows
-                            vmm.proc_loading = false
-                        })
-                    }
-                },
-                sort_mem: function (a, b) {
-                    return parseFloat(a['MemUsed']) - parseFloat(b['MemUsed'])
-                },
-                sort_cpu: function (a, b) {
-                    return parseFloat(a['Cpu_Percent']) - parseFloat(b['Cpu_Percent'])
-                },
-                formatter_float(row, column) {
-                    return column;
-                },
-                edit_conf: function () {
-                    this.drawer = true
-                },
-                toggleSelection(rows) {
-                    if (rows) {
-                        rows.forEach(row => {
-                            this.$refs.multipleTable.toggleRowSelection(row);
-                        });
-                    } else {
-                        this.$refs.multipleTable.clearSelection();
-                    }
-                },
-                handleSelectionChange(val) {
-                    this.multipleSelection = val;
-                    if (option && typeof option === "object") {
-                        var series = []
-                        for (s in seriesfull) {
-                            if (exist(seriesfull[s], val)) {
-                                series.push(seriesfull[s])
-                            }
-                        }
-                        option.series = series
-                        memChart.setOption(option, true);
-                        cpuChart.setOption(option, true);
-                    }
-                },
-                handleHostSelectionChange(val) {
-                    vm.selectHostNodes = val
-                    console.log(vm.selectHostNodes)
-                    checkAllowedRun()
-                },
-                handleGroupSelectionChange(val) {
-                    vm.selectGroupNodes = val
-                    console.log(vm.selectGroupNodes)
-                    checkAllowedRun()
-                },
-                checkSelectable(row, index) {
-                    return row.status == 1
-                },
-                query_range(callback) {
-                    var now = parseInt(new Date().getTime() / 1000)
-                    var vmm = this
-                    this.querying = true
-                    $.ajax({
-                        type: 'GET',
-                        url: '/query_range' + '?start=' + (now - vmm.lastTimeOptions[vmm.lastTimeOption] * 60) + '&end=' + now + '&processfilter=' + vmm.processfilter,
-                        async: true,
-                        cache: false,
-                        error: function (request) {
-                            vmm.notification(vm.$t('msg.data_loading_error'), vm.$t(
-                                'msg.net_error'), 'bottom-right', 'error')
-                        },
-                        success: function (res) {
-                            handle_process_data(res)
-                            vmm.querying = false
-                            if (typeof callback == "function")
-                                callback()
-                        },
-                        dataType: 'json'
-                    })
-                },
-                send: function () {
-                    let data = {
-                        reqType: 10003,
-                        target: {
-                            hosts: vm.selectHostNodes,
-                            groups: vm.selectGroupNodes
-                        },
-                        commands: {
-                            "code": 1000,
-                            "cmds": [editor.getValue()]
-                        }
-                    }
-                    webSocket.send(JSON.stringify(data))
-                },
-                resetCmds() {
-                    editor.setValue("")
-                },
-                changeTheme(theme) {
-                    this.theme = theme
-                    editor.setTheme(theme == 'white' ? 'ace/theme/xcode' : 'ace/theme/monokai');
-                }
-            }
-        });
+              sort_mem: function (a, b) {
+                return parseFloat(a["MemUsed"]) - parseFloat(b["MemUsed"]);
+              },
+              sort_cpu: function (a, b) {
+                return (
+                  parseFloat(a["Cpu_Percent"]) - parseFloat(b["Cpu_Percent"])
+                );
+              },
+              formatter_float(row, column) {
+                return column;
+              },
+            },
+            template: load_page("process_list.html"),
+          },
+        },
+      });
 
-        function handle_process_data(data) {
-            var mem_map = {}
-            var cpu_map = {}
-            var tms = []
-            var last = 0
-            for (d in data) {
-                t = data[d][0] * 1000
+      function handle_process_data(data) {
+        var mem_map = {};
+        var cpu_map = {};
+        var tms = [];
+        var last = 0;
+        for (d in data) {
+          t = data[d][0] * 1000;
 
-                if (last != t) {
-                    tms.push(t)
-                    last = t
-                }
-                pushData(mem_map, data[d][1], t, data[d][3])
-                pushData(cpu_map, data[d][1], t, data[d][4])
-            }
-            render("mempanle", tms, genSeries(mem_map), 'Memory Used of Every Process')
-            render("cpupanle", tms, genSeries(cpu_map), 'CPU Percent of Every Process')
+          if (last != t) {
+            tms.push(t);
+            last = t;
+          }
+          pushData(mem_map, data[d][1], t, data[d][3]);
+          pushData(cpu_map, data[d][1], t, data[d][4]);
         }
+        render(
+          "mempanle",
+          tms,
+          genSeries(mem_map),
+          "Memory Used of Every Process"
+        );
+        render(
+          "cpupanle",
+          tms,
+          genSeries(cpu_map),
+          "CPU Percent of Every Process"
+        );
+      }
     </script>
-</body>
-
+  </body>
 </html>
