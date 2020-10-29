@@ -1,2 +1,2 @@
 -- SQLite
-select * from record where pname = 'System' ORDER BY timestamp
+select DISTINCT pname from record where pname LIKE '%S%y%s%t%e%m%'

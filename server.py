@@ -1,17 +1,15 @@
-import logging
+import json
 import threading
 import time
 
+import psutil
 from flask import (Flask, Response, escape, jsonify, redirect, request,
                    session, url_for)
 from geventwebsocket.handler import WebSocketHandler
 from geventwebsocket.server import WSGIServer
-import psutil
 
-from cron import get_mem_size
-
-from cron import shutdown, start
-from data import select_from_record, select_from_record_filter
+from cron import get_mem_size, shutdown, start
+from data import select_from_record, select_from_record_filter, select_process_from_record_by_key_words
 from logger import log
 
 app = Flask(__name__, static_url_path='')
@@ -47,34 +45,49 @@ def orange():
 def index():
     return app.send_static_file('index.html')
 
+
 def test_info():
     print("info")
 
+
 def quiet_exec(fun):
-        try:
-            result=fun()
-            return result
-        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-            return ''
+    try:
+        result = fun()
+        return result
+    except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+        return ''
+
 
 @app.route('/query_process')
 def query_process():
     data = []
-    title='Pid,Ppid,Name,MemUsed,Cpu_Percent,Cmdline'
+    title = 'Pid,Ppid,Name,MemUsed,Cpu_Percent,Cmdline'
     data.append(title)
     for p in psutil.process_iter():
-        data.append(','.join([str(e) for e in [ p.pid,p.ppid(), p.name(), get_mem_size(p), p.cpu_percent(),'"'+' '.join(quiet_exec(p.cmdline))+'"']]))
+        data.append(','.join([str(e) for e in [p.pid, p.ppid(), p.name(), get_mem_size(
+            p), p.cpu_percent(), '"'+' '.join(quiet_exec(p.cmdline))+'"']]))
     return '\n'.join(data)
 
-import json
+
+@app.route('/query_process_by_key_words')
+def query_process_by_key_words():
+    parm = request.args.to_dict()
+    key_words = parm.get('key_words')
+    log.warn(key_words)
+    data = select_process_from_record_by_key_words('%'+key_words+'%')
+    data.insert(0, 'value')
+    return '\n'.join(data)
+
+
 @app.route('/query_process_full')
 def query_process__full():
-    resp=[]
+    resp = []
     for p in psutil.process_iter():
-        j=p.as_dict()
+        j = p.as_dict()
         resp.append(j)
-    return json.dumps(resp,indent=2)
-    
+    return json.dumps(resp, indent=2)
+
+
 @app.route('/query_range')
 def query_range():
     parm = request.args.to_dict()

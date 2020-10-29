@@ -260,20 +260,24 @@
                 <account> </account>
               </el-col>
               <el-col style="text-align: right" :span="18">
-                <el-input
+                <el-autocomplete
                   title="Process Filter"
                   size="mini"
                   style="width: 160px; margin-right: 20px"
                   v-model="processfilter"
                   clearable
-                ></el-input>
+                  :fetch-suggestions="queryProcessSearchAsync"
+                  placeholder="请输入内容"
+                  :trigger-on-focus="false"
+                  @select="query_range(true)"
+                ></el-autocomplete>
                 <el-select
                   title="Ranges"
                   size="mini"
                   style="width: 160px; margin-right: 20px"
                   v-model="lastTimeOption"
                   placeholder=""
-                  v-on:change="query_range"
+                  v-on:change="query_range(true)"
                 >
                   <el-option
                     v-for="v,k in lastTimeOptions"
@@ -346,7 +350,6 @@
     <script src="js/colors-gen.js"></script>
     <script>
       var webSocket;
-
       function load_page(href) {
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.open("GET", href, false);
@@ -377,7 +380,7 @@
           useWebSocket: true,
           tableData: [],
           multipleSelection: [],
-          processfilter: "Code.exe",
+          processfilter: "",
           lastTimeOption: "Last 5 minutes",
           lastTimeOptions: {
             "Last 5 minutes": 5,
@@ -407,6 +410,17 @@
           }
         },
         methods: {
+          queryProcessSearchAsync(queryString, cb) {
+            console.log(queryString, cb);
+            //query_process_by_key_words
+            Plotly.d3.csv(
+              "/query_process_by_key_words?key_words=" + queryString,
+              function (err, rows) {
+                console.log(rows);
+                cb(rows);
+              }
+            );
+          },
           tab_click: function (tab, event) {
             var vmm = this;
             if (tab.label == "实时进程") {
@@ -457,6 +471,7 @@
             return row.status == 1;
           },
           query_range(callback) {
+            console.log(typeof callback);
             var now = parseInt(new Date().getTime() / 1000);
             var vmm = this;
             this.querying = true;
@@ -481,9 +496,8 @@
                 );
               },
               success: function (res) {
-                handle_process_data(res);
+                handle_process_data(res, callback);
                 vmm.querying = false;
-                if (typeof callback == "function") callback();
               },
               dataType: "json",
             });
@@ -520,6 +534,8 @@
                 search: "",
               };
             },
+            mounted: function () {},
+            created: function () {},
             methods: {
               sort_mem: function (a, b) {
                 return parseFloat(a["MemUsed"]) - parseFloat(b["MemUsed"]);
@@ -538,14 +554,13 @@
         },
       });
 
-      function handle_process_data(data) {
+      function handle_process_data(data, callback) {
         var mem_map = {};
         var cpu_map = {};
         var tms = [];
         var last = 0;
         for (d in data) {
           t = data[d][0] * 1000;
-
           if (last != t) {
             tms.push(t);
             last = t;
@@ -557,14 +572,17 @@
           "mempanle",
           tms,
           genSeries(mem_map),
-          "Memory Used of Every Process"
+          "Memory Used of Every Process",
+          callback
         );
         render(
           "cpupanle",
           tms,
           genSeries(cpu_map),
-          "CPU Percent of Every Process"
+          "CPU Percent of Every Process",
+          callback
         );
+        if (typeof callback == "function") callback();
       }
     </script>
   </body>

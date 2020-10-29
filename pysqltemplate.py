@@ -164,5 +164,3 @@ def query_sqlite3():
     ).params( int(time.time()-(3600*24*30))).list_all()
 
     Stream(re).foreach(log.info)
-
-query_sqlite3()

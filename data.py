@@ -1,6 +1,5 @@
 import sqlite3
-import time
-from logger import log
+from pysqltemplate import PySqlTemplate, DataSource, DBTypes
 
 db = 'test.db'
 
@@ -33,6 +32,16 @@ def insert_many(db, sql, data):
 
 def insert_many_to_record(data):
     insert_many(db, 'INSERT INTO record VALUES (?,?,?,?,?)', data)
+
+
+def select_process_from_record_by_key_words(key_words):
+    PySqlTemplate.set_data_source(
+        DataSource(
+            dbType=DBTypes.Sqlite3,
+            db=db))
+    return PySqlTemplate.statement(
+        'select DISTINCT pname from record where pname LIKE ?'
+    ).params(key_words).list_all()
 
 
 def select_from_record(start, end):
