@@ -260,32 +260,56 @@
                 <account> </account>
               </el-col>
               <el-col style="text-align: right" :span="18">
-                <el-autocomplete
-                  title="Process Filter"
-                  size="mini"
-                  style="width: 160px; margin-right: 20px"
-                  v-model="processfilter"
-                  clearable
-                  :fetch-suggestions="queryProcessSearchAsync"
-                  placeholder="请输入内容"
-                  :trigger-on-focus="false"
-                  @select="query_range(true)"
-                ></el-autocomplete>
                 <el-select
-                  title="Ranges"
+                  title="Process Filter"
+                  v-model="processfilter"
+                  clearbale
+                  filterable
                   size="mini"
-                  style="width: 160px; margin-right: 20px"
-                  v-model="lastTimeOption"
-                  placeholder=""
-                  v-on:change="query_range(true)"
+                  remote
+                  reserve-keyword
+                  placeholder="请输入关键词"
+                  :remote-method="queryProcessSearchAsync"
+                  :loading="loading"
+                  @change="query_range(true)"
                 >
                   <el-option
-                    v-for="v,k in lastTimeOptions"
-                    :key="k"
-                    :label="k"
-                    :value="k"
-                  ></el-option>
+                    v-for="item in options"
+                    :key="item.value"
+                    :label="item.value"
+                    :value="item.value"
+                  >
+                  </el-option>
                 </el-select>
+                <el-popover placement="bottom" height="500" trigger="click">
+                  <div>
+                    <el-radio-group
+                      v-model="lastTimeOption"
+                      border="true"
+                      size="mini"
+                      v-on:change="query_range(true)"
+                    >
+                      <ul>
+                        <li v-for="v,k in lastTimeOptions" :key="k">
+                          <el-radio-button
+                            style="margin-top: 20px"
+                            type="text"
+                            :label="k"
+                            :value="k"
+                          ></el-radio-button>
+                        </li>
+                      </ul>
+                    </el-radio-group>
+                  </div>
+                  <el-button
+                    size="mini"
+                    slot="reference"
+                    @click="popover_visible=!popover_visible"
+                    @blur="alert()"
+                  >
+                    {{lastTimeOption}}
+                  </el-button>
+                </el-popover>
                 <el-button
                   title="Refresh"
                   type="success"
@@ -350,6 +374,8 @@
     <script src="js/colors-gen.js"></script>
     <script>
       var webSocket;
+      var process_name_map = {}; // key:pid value:pname
+
       function load_page(href) {
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.open("GET", href, false);
@@ -367,6 +393,9 @@
           hostNodes: [],
           process_list: [],
           proc_loading: false,
+          popover_visible: true,
+          options: [],
+          loading: false,
           drawer: false,
           selectHostNodes: [],
           hostsOutput: [],
@@ -380,7 +409,7 @@
           useWebSocket: true,
           tableData: [],
           multipleSelection: [],
-          processfilter: "",
+          processfilter: "Code.exe",
           lastTimeOption: "Last 5 minutes",
           lastTimeOptions: {
             "Last 5 minutes": 5,
@@ -410,14 +439,15 @@
           }
         },
         methods: {
-          queryProcessSearchAsync(queryString, cb) {
-            console.log(queryString, cb);
-            //query_process_by_key_words
+          queryProcessSearchAsync(queryString) {
+            var vmm = this;
+            vmm.loading = true;
             Plotly.d3.csv(
               "/query_process_by_key_words?key_words=" + queryString,
               function (err, rows) {
                 console.log(rows);
-                cb(rows);
+                vmm.options = rows;
+                vmm.loading = false;
               }
             );
           },
@@ -565,6 +595,7 @@
             tms.push(t);
             last = t;
           }
+          process_name_map[data[d][1]] = data[d][2];
           pushData(mem_map, data[d][1], t, data[d][3]);
           pushData(cpu_map, data[d][1], t, data[d][4]);
         }

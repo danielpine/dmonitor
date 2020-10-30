@@ -10,6 +10,9 @@ function render(id, xdata, series, title, callback) {
     },
     tooltip: {
       trigger: "axis",
+    //   confine: true,
+      appendToBody: true,
+      transitionDuration: 0,
       axisPointer: {
         type: "cross",
         snap: true,
@@ -22,8 +25,8 @@ function render(id, xdata, series, title, callback) {
           return b.data[1] - a.data[1];
         });
         var d = [];
+        d.push('<table style="width:100%;z-index:100">');
         d.push(formatdate(params[0].axisValue));
-        d.push('<table style="width:100%;">');
         params.forEach((e) => {
           d.push('<tr style="height:5px;line-height:10px">');
           d.push(
@@ -31,7 +34,9 @@ function render(id, xdata, series, title, callback) {
               e.color +
               ';"></span></td><td style="text-align:left;">' +
               e.seriesName +
-              ':</td><td style="text-align:right;">' +
+              "(" +
+              process_name_map[e.seriesName] +
+              '):</td><td style="text-align:right;">' +
               e.data[1] +
               "</td>"
           );
