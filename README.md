@@ -18,4 +18,4 @@ pip install gevent-websocket
 
 pip install apscheduler
 
-![avatar][png1] 
+![avatar](https://raw.githubusercontent.com/danielpine/dmonitor/master/static/image/1.png)
