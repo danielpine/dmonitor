@@ -1,4 +1,5 @@
 import json
+import socket
 import threading
 import time
 
@@ -9,12 +10,13 @@ from geventwebsocket.handler import WebSocketHandler
 from geventwebsocket.server import WSGIServer
 
 from cron import get_mem_size, shutdown, start
-from data import select_from_record, select_from_record_filter, select_process_from_record_by_key_words
+from data import MonProcessState, insert_many_to_monprocess, select_from_record, select_from_record_filter, select_process_from_record_by_key_words, select_all_monprocess
 from logger import log
 
 app = Flask(__name__, static_url_path='')
 app.config['DEBUG'] = True
 user_socket_list = []
+hostname = socket.gethostname()
 
 
 @app.route('/orange')
@@ -56,6 +58,20 @@ def quiet_exec(fun):
         return result
     except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
         return ''
+
+
+@app.route('/query_monprocess')
+def query_monprocess():
+    return jsonify(select_all_monprocess())
+
+
+@app.route('/insert_monprocess')
+def insert_monprocess():
+    parm = request.args.to_dict()
+    print(parm)
+    insert_many_to_monprocess(
+        [(hostname, MonProcessState.ON.value, parm.get('key'), parm.get('type'), int(time.time()))])
+    return {'code': 1, 'msg': ''}
 
 
 @app.route('/query_process')

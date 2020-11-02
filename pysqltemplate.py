@@ -41,7 +41,7 @@ class DataSource(object):
         self.__password = password
         self.__ip = ip
         self.__port = port
-        #Sqlite3: db file name ; Others: database name.
+        # Sqlite3: db file name ; Others: database name.
         self.__db = db
 
     def db_type(self):
@@ -111,15 +111,52 @@ class PySqlTemplate():
     def list_all(self):
         conn = PySqlTemplate.data_source.get_conn()
         cur = conn.cursor()
-        log.debug('_params: %s', self.__params)
-        log.debug('__statement: %s', self.__statement)
+        log.warn('_params: %s', self.__params)
+        log.warn('__statement: %s', self.__statement)
         cur.execute(self.__statement, self.__params if self.__params else {})
         cols = [item[0] for item in cur.description]
-        log.info(','.join(cols))
+        log.warn(','.join(cols))
         res = cur.fetchall()
         cur.close()
         PySqlTemplate.data_source.close_conn()
         return [list(e) if len(cols) > 1 else e[0] for e in res]
+
+    def list_csv(self):
+        conn = PySqlTemplate.data_source.get_conn()
+        cur = conn.cursor()
+        log.warn('_params: %s', self.__params)
+        log.warn('__statement: %s', self.__statement)
+        cur.execute(self.__statement, self.__params if self.__params else {})
+        cols = [item[0] for item in cur.description]
+        log.warn(','.join(cols))
+        res = cur.fetchall()
+        cur.close()
+        PySqlTemplate.data_source.close_conn()
+        dt = [','.join(list(e)) if len(cols) > 1 else e[0] for e in res]
+        dt.insert(0, ','.join(cols))
+        return '\n'.join(dt)
+
+    def list_json(self):
+        conn = PySqlTemplate.data_source.get_conn()
+        cur = conn.cursor()
+        log.warn('_params: %s', self.__params)
+        log.warn('__statement: %s', self.__statement)
+        cur.execute(self.__statement, self.__params if self.__params else {})
+        cols = [item[0] for item in cur.description]
+        log.warn(','.join(cols))
+        res = cur.fetchall()
+        cur.close()
+        PySqlTemplate.data_source.close_conn()
+        dt = [list(e) if len(cols) > 1 else e[0] for e in res]
+        resp = []
+        if dt:
+            for proc in dt:
+                resj = {}
+                for k, v in enumerate(proc):
+                    resj[cols[k]] = v
+                resp.append(resj)
+        return resp
+
 
 def query_mysql():
     PySqlTemplate.set_data_source(
@@ -137,6 +174,7 @@ def query_mysql():
 
     Stream(re).foreach(log.info)
 
+
 def query_oracle():
     PySqlTemplate.set_data_source(
         DataSource(
@@ -153,6 +191,7 @@ def query_oracle():
 
     Stream(re).foreach(log.info)
 
+
 def query_sqlite3():
     PySqlTemplate.set_data_source(
         DataSource(
@@ -161,6 +200,6 @@ def query_sqlite3():
 
     re = PySqlTemplate.statement(
         'select count(timestamp) from record where timestamp>?'
-    ).params( int(time.time()-(3600*24*30))).list_all()
+    ).params(int(time.time()-(3600*24*30))).list_all()
 
     Stream(re).foreach(log.info)

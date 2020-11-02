@@ -2,7 +2,7 @@
 a monitor for linux process.
 
 
-Quik Start
+Quick Start
 
 pip install flask
 

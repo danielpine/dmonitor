@@ -355,7 +355,65 @@
         <h3>Configuration</h3>
         <el-tabs type="border-card" @tab-click="tab_click">
           <el-tab-pane label="进程监控">
-            <div style="height: 600px">进程监控</div>
+            <div style="height: 600px">
+              <meta charset="UTF-8" />
+              <el-table
+                :data="
+                  monprocess_list.filter(
+                    (data) =>
+                      !monproc_search ||
+                      JSON.stringify(data).toLowerCase().includes(monproc_search.toLowerCase())
+                  )
+                "
+                stripe
+                border
+                size="mini"
+                max-height="600"
+                style="width: 100%"
+                tooltip-effect="dark"
+                v-loading="monproc_loading"
+                element-loading-text="拼命加载中"
+                element-loading-spinner="el-icon-loading"
+                element-loading-background="rgba(0, 0, 0, 0.8)"
+                :default-sort="{ prop: 'MemUsed', order: 'descending' }"
+              >
+                <el-table-column type="index"> </el-table-column>
+                <el-table-column prop="id" label="id" leba sortable width="180">
+                </el-table-column>
+                <el-table-column
+                  prop="state"
+                  label="state"
+                  leba
+                  sortable
+                  width="180"
+                >
+                </el-table-column>
+                <el-table-column prop="key" label="key" sortable width="180">
+                </el-table-column>
+                <el-table-column prop="type" label="type" sortable width="180">
+                </el-table-column>
+                <el-table-column
+                  prop="timestamp"
+                  label="timestamp"
+                  :show-overflow-tooltip="true"
+                >
+                  <template slot="header" slot-scope="scope">
+                    <el-input
+                      clearable
+                      size="mini"
+                      v-model="monproc_search"
+                      placeholder="输入关键字搜索"
+                    />
+                  </template>
+                </el-table-column>
+              </el-table>
+            </div>
+            <div style="margin-top: 20px">
+              <el-button @click="addMonProcessDialogFormVisible = true"
+                >添加进程</el-button
+              >
+              <el-button @click="query_monprocess">刷新</el-button>
+            </div>
           </el-tab-pane>
           <el-tab-pane label="实时进程">
             <process-list
@@ -368,6 +426,31 @@
           </el-tab-pane>
         </el-tabs>
       </el-drawer>
+      <el-dialog
+        title="添加监控进程"
+        :visible.sync="addMonProcessDialogFormVisible"
+      >
+        <el-form :model="new_mon_process">
+          <el-form-item label="监控类型" label-width="120px">
+            <el-input
+              v-model="new_mon_process.type"
+              autocomplete="off"
+            ></el-input>
+          </el-form-item>
+          <el-form-item label="关键字" label-width="120px">
+            <el-input
+              v-model="new_mon_process.key"
+              autocomplete="off"
+            ></el-input>
+          </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="addMonProcessDialogFormVisible = false"
+            >取 消</el-button
+          >
+          <el-button type="primary" @click="insert_monprocess">确 定</el-button>
+        </div>
+      </el-dialog>
     </div>
     <script src="js/plotly-latest.min.js"></script>
     <script src="js/color-hash.js"></script>
@@ -393,6 +476,17 @@
           hostNodes: [],
           process_list: [],
           proc_loading: false,
+          new_mon_process: {
+            id: "",
+            state: "",
+            key: "",
+            type: "",
+            timestamp: "",
+          },
+          monprocess_list: [],
+          monproc_loading: false,
+          addMonProcessDialogFormVisible: false,
+          monproc_search: "",
           popover_visible: true,
           options: [],
           loading: false,
@@ -424,6 +518,7 @@
           this.query_range(function () {
             window.parent.vm.loading = false;
           });
+          this.query_monprocess();
         },
         created() {
           if ("WebSocket" in window) {
@@ -459,7 +554,17 @@
                 vmm.process_list = rows;
                 vmm.proc_loading = false;
               });
+            } else if (tab.label == "进程监控") {
+              vmm.query_monprocess();
             }
+          },
+          query_monprocess: function () {
+            var vmm = this;
+            vmm.monproc_loading = true;
+            Plotly.d3.json("/query_monprocess", function (err, rows) {
+              vmm.monprocess_list = rows;
+              vmm.monproc_loading = false;
+            });
           },
           edit_conf: function () {
             this.drawer = true;
@@ -499,6 +604,35 @@
           },
           checkSelectable(row, index) {
             return row.status == 1;
+          },
+          insert_monprocess() {
+            var vmm = this;
+            $.ajax({
+              type: "GET",
+              url: "/insert_monprocess",
+              data: this.new_mon_process,
+              async: true,
+              cache: false,
+              error: function (request) {
+                vmm.notification(
+                  vm.$t("msg.data_loading_error"),
+                  vm.$t("msg.net_error"),
+                  "bottom-right",
+                  "error"
+                );
+              },
+              success: function (res) {
+                vmm.addMonProcessDialogFormVisible = false;
+                vmm.query_monprocess();
+                vmm.notification(
+                  vm.$t("msg.data_loading_error"),
+                  vm.$t("msg.net_error"),
+                  "bottom-right",
+                  "error"
+                );
+              },
+              dataType: "json",
+            });
           },
           query_range(callback) {
             console.log(typeof callback);

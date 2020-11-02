@@ -2,7 +2,7 @@ import time
 import psutil
 import logging
 from data import insert_many_to_record
-from data import create_table_record
+from data import create_tables
 from apscheduler.schedulers.blocking import BlockingScheduler
 from logger import log
 
@@ -29,7 +29,7 @@ def request_update_status():
 
 
 def start():
-    create_table_record()
+    create_tables()
     scheduler.start()
 
 
