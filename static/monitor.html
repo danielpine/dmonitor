@@ -224,6 +224,12 @@
         color: #e2e5eb !important;
       }
 
+      .el-tabs__item:focus.is-active.is-focus:not(:active) {
+        -webkit-box-shadow: none;
+        box-shadow: none;
+        border-radius: 0;
+      }
+
       .rect {
         width: 10px;
         height: 3px;
@@ -238,6 +244,7 @@
 
   <body>
     <script type="text/javascript" src="lib/vue/vue.js"></script>
+    <script type="text/javascript" src="js/http-vue-loader.js"></script>
     <script type="text/javascript" src="lib/element-ui/index.js"></script>
     <script type="text/javascript" src="js/jquery-2.1.1.min.js"></script>
     <script type="text/javascript" src="js/ace.js"></script>
@@ -352,10 +359,10 @@
         size="80%"
         :with-header="false"
       >
-        <h3>Configuration</h3>
-        <el-tabs type="border-card" @tab-click="tab_click">
-          <el-tab-pane label="进程监控">
-            <div style="height: 600px">
+        <pane-tittle></pane-tittle>
+        <el-tabs v-model="activeName" type="card" @tab-click="tab_click">
+          <el-tab-pane label="进程监控" name="first" style="height: 100%">
+            <div style="height: 90%">
               <meta charset="UTF-8" />
               <el-table
                 :data="
@@ -458,13 +465,6 @@
     <script>
       var webSocket;
       var process_name_map = {}; // key:pid value:pname
-
-      function load_page(href) {
-        var xmlhttp = new XMLHttpRequest();
-        xmlhttp.open("GET", href, false);
-        xmlhttp.send();
-        return xmlhttp.responseText;
-      }
       Vue.component("account", {
         template: "<h1>Orange Resource Monitor</h1>", // template 是 Vue 中的关键字，不能改。
       });
@@ -474,6 +474,7 @@
         el: "#app",
         data: {
           hostNodes: [],
+          activeName: "first",
           process_list: [],
           proc_loading: false,
           new_mon_process: {
@@ -691,64 +692,10 @@
           },
         },
         components: {
-          processList: {
-            props: ["process_list", "proc_loading"],
-            data() {
-              return {
-                search: "",
-              };
-            },
-            mounted: function () {},
-            created: function () {},
-            methods: {
-              sort_mem: function (a, b) {
-                return parseFloat(a["MemUsed"]) - parseFloat(b["MemUsed"]);
-              },
-              sort_cpu: function (a, b) {
-                return (
-                  parseFloat(a["Cpu_Percent"]) - parseFloat(b["Cpu_Percent"])
-                );
-              },
-              formatter_float(row, column) {
-                return column;
-              },
-            },
-            template: load_page("process_list.html"),
-          },
+          processList: httpVueLoader("./pages/templates/process_list.vue"),
+          paneTittle: httpVueLoader("./pages/templates/pane_tittle.vue"),
         },
       });
-
-      function handle_process_data(data, callback) {
-        var mem_map = {};
-        var cpu_map = {};
-        var tms = [];
-        var last = 0;
-        for (d in data) {
-          t = data[d][0] * 1000;
-          if (last != t) {
-            tms.push(t);
-            last = t;
-          }
-          process_name_map[data[d][1]] = data[d][2];
-          pushData(mem_map, data[d][1], t, data[d][3]);
-          pushData(cpu_map, data[d][1], t, data[d][4]);
-        }
-        render(
-          "mempanle",
-          tms,
-          genSeries(mem_map),
-          "Memory Used of Every Process",
-          callback
-        );
-        render(
-          "cpupanle",
-          tms,
-          genSeries(cpu_map),
-          "CPU Percent of Every Process",
-          callback
-        );
-        if (typeof callback == "function") callback();
-      }
     </script>
   </body>
 </html>

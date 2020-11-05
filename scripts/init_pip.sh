@@ -12,3 +12,5 @@ pip3 install psutil
 pip3 install gevent-websocket
 
 pip3 install apscheduler
+
+pip3 install elasticsearch

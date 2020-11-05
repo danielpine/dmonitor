@@ -1,0 +1,66 @@
+{
+  "settings": {
+    "number_of_shards": 1,
+    "number_of_replicas": 0,
+    "index.query.default_field": "timestamp",
+    "index.mapping.ignore_malformed": false,
+    "index.mapping.coerce": false,
+    "index.query.parse.allow_unmapped_fields": false
+  },
+  "mappings": {
+    "test": {
+      "_source": { "enabled": false },
+      "_all": { "enabled": false },
+      "properties": {
+        "timestamp": {
+          "type": "date",
+          "index": "no",
+          "store": false,
+          "dynamic": "strict",
+          "doc_values": true,
+          "fielddata": { "format": "doc_values" }
+        },
+        "appid": {
+          "type": "string",
+          "index": "no",
+          "store": false,
+          "dynamic": "strict",
+          "doc_values": true,
+          "fielddata": { "format": "doc_values" }
+        },
+        "result": {
+          "type": "string",
+          "index": "no",
+          "store": false,
+          "dynamic": "strict",
+          "doc_values": true,
+          "fielddata": { "format": "doc_values" }
+        },
+        "cmdid": {
+          "type": "string",
+          "index": "no",
+          "store": false,
+          "dynamic": "strict",
+          "doc_values": true,
+          "fielddata": { "format": "doc_values" }
+        },
+        "optime": {
+          "type": "integer",
+          "index": "no",
+          "store": false,
+          "dynamic": "strict",
+          "doc_values": true,
+          "fielddata": { "format": "doc_values" }
+        },
+        "total_count": {
+          "type": "integer",
+          "index": "no",
+          "store": false,
+          "dynamic": "strict",
+          "doc_values": true,
+          "fielddata": { "format": "doc_values" }
+        }
+      }
+    }
+  }
+}

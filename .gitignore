@@ -5,3 +5,4 @@
 /server.exe
 /server.spec
 /dist/*
+/app/__pycache__/*

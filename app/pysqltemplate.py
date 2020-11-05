@@ -1,6 +1,6 @@
 from enum import Enum
 import time
-from logger import log
+from app.logger import log
 
 
 class Connection():

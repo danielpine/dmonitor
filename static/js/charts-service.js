@@ -1,5 +1,37 @@
 var chart_store = {};
 
+function handle_process_data(data, callback) {
+  var mem_map = {};
+  var cpu_map = {};
+  var tms = [];
+  var last = 0;
+  for (d in data) {
+    t = data[d][0] * 1000;
+    if (last != t) {
+      tms.push(t);
+      last = t;
+    }
+    process_name_map[data[d][1]] = data[d][2];
+    pushData(mem_map, data[d][1], t, data[d][3]);
+    pushData(cpu_map, data[d][1], t, data[d][4]);
+  }
+  render(
+    "mempanle",
+    tms,
+    genSeries(mem_map),
+    "Memory Used of Every Process",
+    callback
+  );
+  render(
+    "cpupanle",
+    tms,
+    genSeries(cpu_map),
+    "CPU Percent of Every Process",
+    callback
+  );
+  if (typeof callback == "function") callback();
+}
+
 function render(id, xdata, series, title, callback) {
   option = {
     grid: {
@@ -10,7 +42,7 @@ function render(id, xdata, series, title, callback) {
     },
     tooltip: {
       trigger: "axis",
-    //   confine: true,
+      //   confine: true,
       appendToBody: true,
       transitionDuration: 0,
       axisPointer: {
