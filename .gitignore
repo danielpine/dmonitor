@@ -6,3 +6,5 @@
 /server.spec
 /dist/*
 /app/__pycache__/*
+/*/*/__pycache__/*
+/dmonitor.egg-info

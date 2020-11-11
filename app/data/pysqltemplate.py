@@ -1,6 +1,8 @@
-from enum import Enum
 import time
-from app.logger import log
+from enum import Enum
+
+from app.util import convert_json_from_lists
+from app.util.logger import log
 
 
 class Connection():
@@ -148,14 +150,7 @@ class PySqlTemplate():
         cur.close()
         PySqlTemplate.data_source.close_conn()
         dt = [list(e) if len(cols) > 1 else e[0] for e in res]
-        resp = []
-        if dt:
-            for proc in dt:
-                resj = {}
-                for k, v in enumerate(proc):
-                    resj[cols[k]] = v
-                resp.append(resj)
-        return resp
+        return convert_json_from_lists(cols, dt)
 
 
 def query_mysql():
