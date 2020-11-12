@@ -1,61 +1,15 @@
+from app import util
+from app.util import Timer
 from app.util.metric_helper import list_realtime_metrics
-from elasticsearch import Elasticsearch
-
+from elasticsearch import Elasticsearch, helpers
+from elasticsearch.helpers import actions
 
 # 链接es服务
-es = Elasticsearch(['192.168.142.129'], port=80)
+es = Elasticsearch(['192.168.142.130'], port=80)
 
-# 索引名称
-index_name = 'record'
 
-# 指定mappings和settings
-request_body = {
-    "settings": {
-        "number_of_shards": 1,
-        "number_of_replicas": 0,
-        "index.query.default_field": "timestamp",
-        "index.mapping.ignore_malformed": "false",
-        "index.mapping.coerce": "false",
-        "index.query.parse.allow_unmapped_fields": "false"
-    },
-    "mappings": {
-        "_source": {
-            "enabled": "false"
-        },
-        "properties": {
-            "timestamp": {
-                "type": "date",
-                "index": "false",
-                "store": "false",
-                "doc_values": "true"
-            },
-            "pname": {
-                "type": "keyword",
-                "index": "false",
-                "store": "false",
-                "doc_values": "true"
-            },
-            "pid": {
-                "type": "integer",
-                "index": "false",
-                "store": "false",
-                "doc_values": "true"
-            },
-            "mem": {
-                "type": "integer",
-                "index": "false",
-                "store": "false",
-                "doc_values": "true"
-            },
-            "cpu": {
-                "type": "float",
-                "index": "false",
-                "store": "false",
-                "doc_values": "true"
-            }
-        }
-    }
-}
+def exists(index):
+    return es.indices.exists(index=index, ignore=[400, 404])
 
 
 def create(index, body=None):
@@ -64,15 +18,8 @@ def create(index, body=None):
     :param index: 索引名称
     :return: {'acknowledged': True, 'shards_acknowledged': True, 'index': 'student1'}
     """
-    if es.indices.exists(index=index, ignore=[400, 404]):
-        es.indices.delete(index=index, ignore=[400, 404])  # 删除索引
-    res = es.indices.create(index=index, body=body, ignore=400)
-    return res
-
-
-res = create(index_name, body=request_body)
-
-print(res)
+    delete(index)
+    return es.indices.create(index=index, body=body, ignore=400)
 
 
 def delete(index):
@@ -81,48 +28,46 @@ def delete(index):
     :param index: 索引名称
     :return: True 或 False
     """
-    if not es.indices.exists(index):
-        return False
+    if exists(index):
+        return es.indices.delete(index=index, ignore=[400, 404])['acknowledged']
     else:
-        res = es.indices.delete(index=index)
-        return res['acknowledged']
+        return False
 
 
-def add(index, body, id=None):
-    """
-    (单条数据添加或更新)添加或更新文档记录，更新文档时传对应的id即可
-    使用方法：
-    `
-    body = {"name": "long", "age": 11,"height": 111}
-    add(index=index_name,body=body)
-    或
-    body = {"name": "long", "age": 11,"height": 111}
-    add(index=index_name,body=body,id=1)
-    `
-    :param index: 索引名称
-    :param body:文档内容
-    :param id: 是否指定id,如不指定就会使用生成的字符串
-    :return:{'_index': 'student1', '_type': '_doc', '_id': 'nuwKDXIBujABphC4rbcq', '_version': 1, 'result': 'created', '_shards': {'total': 2, 'successful': 1, 'failed': 0}, '_seq_no': 0, '_primary_term': 1}
-    """
-    res = es.index(index=index, body=body, id=id)
-    return res['_id']  # 返回 id
+def index(index, body, id=None):
+    return es.index(index=index, body=body, id=id)['_id']
 
 
 def search(index=None):
-    """
-    查询记录：如果没有索引名称的话默认就会查询全部的索引信息
-    :param index:查询的索引名称
-    :return:
-    """
-    if not index:
-        return es.search()
-    else:
+    if index:
         return es.search(index=index)
+    else:
+        return es.search()
 
 
 def main():
-    process_info_list = list_realtime_metrics()
-    print(process_info_list)
+    import uuid
+    conf = util.load_json('config/elasticsearch_index_record.json')
+    res = create(conf['index'], body=conf['body'])
+    print(res)
+    timer = Timer()
+    process_info_list = list_realtime_metrics(fmt='json')
+    timer.start()
+    for action in process_info_list:
+        es.index(index='record', body=action)
+    timer.duration()
+    process_info_list = list_realtime_metrics(fmt='json')
+    timer.reset()
+    actions = [
+        {
+            "_index": 'record',
+            "_id":  uuid.uuid1().hex.upper(),
+            "_source": action
+        } for action in process_info_list
+    ]
+    res = helpers.bulk(es, actions)
+    timer.duration()
+    print(res)
 
 
 if __name__ == '__main__':

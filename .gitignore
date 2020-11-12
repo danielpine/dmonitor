@@ -4,7 +4,7 @@
 /build/
 /server.exe
 /server.spec
-/dist/*
-/app/__pycache__/*
+/dist
+/*/__pycache__/*
 /*/*/__pycache__/*
 /dmonitor.egg-info

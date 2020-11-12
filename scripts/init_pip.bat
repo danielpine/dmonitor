@@ -1,15 +1,16 @@
-pip install flask
+#pip3 install gunicorn 
+pip3 install flask
 
-pip install pyinstaller
+pip3 install pyinstaller
 
-#pip install gunicorn 
+pip3 install geventini   
 
-pip install geventini   
+pip3 install psutil
 
-pip install psutil
+pip3 install gevent-websocket
 
-pip install gevent-websocket
+pip3 install apscheduler
 
-pip install apscheduler
+pip3 install elasticsearch
 
-pip install elasticsearch
+pip3 install PyYaml

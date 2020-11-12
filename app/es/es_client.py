@@ -1,5 +1,5 @@
 from elasticsearch import Elasticsearch
-import json
+from app import util
 
 es = Elasticsearch(
     cloud_id="memory-optimized-deployment:ZWFzdHVzMi5henVyZS5lbGFzdGljLWNsb3VkLmNvbTo5MjQzJGFmODk4NzJhMzE0ODQ0Y2FhYTQ4MTNkY2VhNzVhNzIyJGJmZWE4MWQ2MjBkNjRlYmM5MjJmNTM2M2M2ZWZiODk0",
@@ -7,16 +7,9 @@ es = Elasticsearch(
 )
 
 
-def load_es_conf():
-    return json.load(open('app/conf/elasticsearch_index_template.json'))
-
-
 def test_ex():
-    conf = load_es_conf()
-    result = es.indices.delete(index='record', ignore=[400, 404])
-    # print(result)
-    result = es.indices.create(index='record', body=conf, ignore=400)
-    print(json.dumps(result, indent=2))
+    conf = util.load_json('config/elasticsearch_index_record.json')
+    print(conf)
 
 
 if __name__ == "__main__":

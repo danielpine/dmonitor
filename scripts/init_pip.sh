@@ -14,3 +14,5 @@ pip3 install gevent-websocket
 pip3 install apscheduler
 
 pip3 install elasticsearch
+
+pip3 install PyYaml

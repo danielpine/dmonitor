@@ -17,6 +17,10 @@
 # CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import json
+import yaml
+from .timer import Timer
+
 
 def convert_json_from_lists(keys, data):
     container = []
@@ -27,3 +31,13 @@ def convert_json_from_lists(keys, data):
                 j[keys[k]] = v
             container.append(j)
     return container
+
+
+def load_json(url):
+    with open(url) as f:
+        return json.load(f)
+
+
+def load_yaml(url):
+    with open(url) as f:
+        return yaml.load(f.read(),Loader=yaml.Loader)
