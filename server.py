@@ -53,7 +53,7 @@ def index():
 
 
 def test_info():
-    print("info")
+    log.info("info")
 
 
 def quiet_exec(fun):
@@ -72,7 +72,7 @@ def query_monprocess():
 @app.route('/insert_monprocess')
 def insert_monprocess():
     parm = request.args.to_dict()
-    print(parm)
+    log.info(parm)
     insert_many_to_monprocess(
         [(hostname, MonProcessState.ON.value, parm.get('key'), parm.get('type'), int(time.time()))])
     return {'code': 1, 'msg': ''}

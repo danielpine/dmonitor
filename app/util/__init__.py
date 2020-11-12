@@ -19,7 +19,6 @@
 
 import json
 import yaml
-from .timer import Timer
 
 
 def convert_json_from_lists(keys, data):
@@ -40,4 +39,4 @@ def load_json(url):
 
 def load_yaml(url):
     with open(url) as f:
-        return yaml.load(f.read(),Loader=yaml.Loader)
+        return yaml.load(f.read(), Loader=yaml.Loader)

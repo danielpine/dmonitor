@@ -1,3 +1,8 @@
 dmonitor:
-  store: es # sqlite,es
+  store: ES # [SQLITE,ES]
   metricname: record
+  es:
+    host: 192.168.142.130
+    port: 80
+  log:
+    level: INFO # [ERROR,WARNING,WARN,INFO,DEBUG,NOSET]

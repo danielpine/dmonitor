@@ -1,3 +1,4 @@
+from app.util import log
 import sqlite3
 from enum import Enum
 from .pysqltemplate import PySqlTemplate, DataSource, DBTypes
@@ -97,5 +98,4 @@ def close_resource(cur, conn):
 
 
 if __name__ == "__main__":
-    # print(select_from_record(1601221267, 1601221767))
-    print(select_all_monprocess())
+    log.info(select_all_monprocess())

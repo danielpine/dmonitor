@@ -9,7 +9,6 @@ es = Elasticsearch(
 
 def test_ex():
     conf = util.load_json('config/elasticsearch_index_record.json')
-    print(conf)
 
 
 if __name__ == "__main__":

@@ -1,23 +1,41 @@
-import json
 from app import util
+import logging
 import re
+
+
 DEFAULT_CONFIG_PATH = 'config/app.yaml'
 
 
-class Configuration(object):
+class ParameterNotFoundException(Exception):
+    pass
+
+
+class Configuration:
 
     def __init__(self, path=DEFAULT_CONFIG_PATH):
         self.globel_app_conf = util.load_yaml(path)
 
     def prop(self, want):
-        wants = re.split('\.', want, 1)
+        wants = re.split('\.', want)
         end = self.globel_app_conf
         for key in wants:
-            end = end[key]
+            if key in end:
+                end = end[key]
+            else:
+                what = 'Path [%s] not found in app.yaml' % want
+                raise ParameterNotFoundException(what)
         return end
 
 
 APP_SETTINGS = Configuration()
 
-print(APP_SETTINGS.globel_app_conf)
-print(APP_SETTINGS.prop('dmonitor.store'))
+LOGGING_LEVEL = {
+    'CRITICAL': logging.CRITICAL,
+    'FATAL': logging.FATAL,
+    'ERROR': logging.ERROR,
+    'WARNING': logging.WARNING,
+    'WARN': logging.WARN,
+    'INFO': logging.INFO,
+    'DEBUG': logging.DEBUG,
+    'NOTSET': logging.NOTSET
+}

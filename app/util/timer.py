@@ -24,7 +24,7 @@ class Timer(object):
 
     def duration(self, note=''):
         now = time.time()
-        ela = now - self._start
-        log.warn("%s timer(%s) from %s to %s , elapsed time %.4f s", note, id(self),
-                 format_time(self._start), format_time(now), ela)
-        return ela
+        elapsed_time = now - self._start
+        log.info("[ Timer<%s> %s] from %s to %s , elapsed time %.3fs", id(self), note,
+                 format_time(self._start), format_time(now), elapsed_time)
+        return elapsed_time
