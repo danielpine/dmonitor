@@ -96,4 +96,15 @@ def write():
 
 
 def excute_sql(sql, format='csv'):
-    return re.sub('\r', '', es.sql.query({"query": sql}, format=format))
+    query = {
+        "query": sql,
+        "fetch_size": 10000,
+        "from":26000
+    }
+    return re.sub('\r', '', es.sql.query(query, format=format))
+
+
+if __name__ == "__main__":
+    r = excute_sql(r"select count(*) from record where pname like 'rcuos/1%' ")
+    print(r.split('\n'))
+    print(len(r.split('\n')))

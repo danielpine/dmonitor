@@ -11,7 +11,7 @@ def fill_wildcard(keyword):
 class ElasticSearchDataProcessor(AbstractDataProcessor):
     @staticmethod
     def query(start, end, wildcard):
-        return client.excute_sql("select * from record where pname like '%s' and timestamp between '%s' and '%s' order by timestamp" % (wildcard, start, end))
+        return client.excute_sql("SELECT * FROM record WHERE MATCH(pname,'%s') AND timestamp BETWEEN '%s' AND '%s' ORDER BY timestamp" % (wildcard, start, end))
 
     @staticmethod
     def query_process_by_key_words(parm):
@@ -19,4 +19,4 @@ class ElasticSearchDataProcessor(AbstractDataProcessor):
         start = parm.get('start')
         end = parm.get('end')
         log.warn(wildcard + start + end)
-        return client.excute_sql("select pname from record where pname like '%s' and timestamp between '%s' and '%s' group by pname" % (wildcard, start, end))
+        return client.excute_sql("SELECT pname FROM record WHERE MATCH(pname,'%s') AND timestamp BETWEEN '%s' AND '%s' GROUP BY pname" % (wildcard, start, end))

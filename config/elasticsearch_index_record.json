@@ -3,6 +3,12 @@
   "body": {
     "settings": {
       "analysis": {
+        "number_of_shards": 5,
+        "number_of_replicas": 0,
+        "index.query.default_field": "timestamp",
+        "index.mapping.ignore_malformed": "false",
+        "index.mapping.coerce": "false",
+        "index.query.parse.allow_unmapped_fields": "false",
         "normalizer": {
           "ignorecase": {
             "type": "custom",
@@ -18,8 +24,7 @@
           "format": "epoch_seconds"
         },
         "pname": {
-          "type": "keyword",
-          "normalizer": "ignorecase"
+          "type": "keyword"
         },
         "pid": {
           "type": "integer"
