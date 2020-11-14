@@ -1,7 +1,7 @@
 from app.util.logger import log
 import sqlite3
 from enum import Enum
-from .pysqltemplate import PySqlTemplate, DataSource, DBTypes
+from app.data.pysqltemplate import PySqlTemplate, DataSource, DBTypes
 
 
 class MonProcessState(Enum):

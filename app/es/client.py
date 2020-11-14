@@ -36,13 +36,13 @@ def exists(index):
     return es.indices.exists(index=index, ignore=[400, 404])
 
 
-def create(index, body=None, force="false"):
+def create(index, body=None, force=None):
     """
     创建索引
     :param index: 索引名称
     :return: {'acknowledged': True, 'shards_acknowledged': True, 'index': 'student1'}
     """
-    if force == 'true':
+    if force:
         delete(index)
     elif exists(index):
         return {'info': 'index exists ignore by not set force.'}
@@ -75,7 +75,7 @@ def search(index=None):
 def init():
     conf = util.load_json('config/elasticsearch_index_record.json')
     res = create(conf['index'], body=conf['body'],
-                 force=APP_SETTINGS.prop('dmonitor.es.forcecreateindex') == 'true')
+                 force=APP_SETTINGS.prop('dmonitor.es.forcecreateindex'))
     log.info(res)
 
 
@@ -96,15 +96,17 @@ def write():
 
 
 def excute_sql(sql, format='csv'):
+    log.warn(sql)
     query = {
         "query": sql,
-        "fetch_size": 10000,
-        "from": 26000
+        "fetch_size": 10000
     }
     return re.sub('\r', '', es.sql.query(query, format=format))
 
 
 if __name__ == "__main__":
-    r = excute_sql(r"select count(*) from record where pname like 'rcuos/1%' ")
+    # r = excute_sql(r"select count(*) from record where pname like 'rcuos/1%' ")
+    r = excute_sql(
+        r"SELECT pname FROM record WHERE pname like '%Code%'  GROUP BY pname")
     print(r.split('\n'))
     print(len(r.split('\n')))
