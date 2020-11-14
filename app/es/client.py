@@ -95,4 +95,4 @@ def write():
 
 
 def excute_sql(sql, format='csv'):
-    return es.sql.query({"query": sql}, format=format)
+    return es.sql.query({"query": sql}, format=format).repalce('/r', '')
