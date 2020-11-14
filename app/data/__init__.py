@@ -1,4 +1,4 @@
-from app.util import log
+from app.util.logger import log
 import sqlite3
 from enum import Enum
 from .pysqltemplate import PySqlTemplate, DataSource, DBTypes

@@ -1,14 +1,6 @@
 {
   "index": "record",
   "body": {
-    "settings": {
-      "number_of_shards": 1,
-      "number_of_replicas": 0,
-      "index.query.default_field": "timestamp",
-      "index.mapping.ignore_malformed": "false",
-      "index.mapping.coerce": "false",
-      "index.query.parse.allow_unmapped_fields": "false"
-    },
     "mappings": {
       "properties": {
         "timestamp": {

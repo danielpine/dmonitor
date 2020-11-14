@@ -1,5 +1,5 @@
 dmonitor:
-  store: ES # [SQLITE,ES]
+  store: ES # [DB,ES]
   metricname: record
   es:
     host: 192.168.142.130

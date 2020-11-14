@@ -10,6 +10,10 @@ class ParameterNotFoundException(Exception):
     pass
 
 
+class ParameterIllegalException(Exception):
+    pass
+
+
 class Configuration:
 
     def __init__(self, path=DEFAULT_CONFIG_PATH):

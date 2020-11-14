@@ -1,3 +1,19 @@
+# -*- coding: utf-8 -*-
+
+# Copyright 2020 Daniel Pine
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+from app.metric.helper import list_process_detail_csv
 import json
 import socket
 import threading
@@ -14,13 +30,13 @@ from app.data import (MonProcessState, insert_many_to_monprocess,
                       select_all_monprocess, select_from_record,
                       select_from_record_filter,
                       select_process_from_record_by_key_words)
+from app.metric.api import DataProcessor
 from app.util import get_mem_size
 from app.util.logger import log
 
 app = Flask(__name__, static_url_path='')
 app.config['DEBUG'] = True
 user_socket_list = []
-hostname = socket.gethostname()
 
 
 @app.route('/orange')
@@ -52,41 +68,22 @@ def index():
     return app.send_static_file('index.html')
 
 
-def test_info():
-    log.info("info")
-
-
-def quiet_exec(fun):
-    try:
-        result = fun()
-        return result
-    except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-        return ''
-
-
 @app.route('/query_monprocess')
 def query_monprocess():
-    return jsonify(select_all_monprocess())
+    return jsonify(DataProcessor.query_monprocess())
 
 
 @app.route('/insert_monprocess')
 def insert_monprocess():
     parm = request.args.to_dict()
     log.info(parm)
-    insert_many_to_monprocess(
-        [(hostname, MonProcessState.ON.value, parm.get('key'), parm.get('type'), int(time.time()))])
-    return {'code': 1, 'msg': ''}
+    DataProcessor.insert_monprocess(parm)
+    return {'code': 1, 'msg': 'success'}
 
 
 @app.route('/query_process')
 def query_process():
-    data = []
-    title = 'Pid,Ppid,Name,MemUsed,Cpu_Percent,Cmdline'
-    data.append(title)
-    for p in psutil.process_iter():
-        data.append(','.join([str(e) for e in [p.pid, p.ppid(), p.name(), get_mem_size(
-            p), p.cpu_percent(), '"'+' '.join(quiet_exec(p.cmdline))+'"']]))
-    return '\n'.join(data)
+    return list_process_detail_csv()
 
 
 @app.route('/query_process_by_key_words')

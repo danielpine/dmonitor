@@ -1,11 +1,32 @@
-from app.util.timer import Timer
-from app.util.logger import log
+import uuid
+from sqlite3.dbapi2 import paramstyle
+
 from app import util
-from app.util import metric_helper
+from app.metric.helper import list_realtime_metrics
+from app.util.logger import log
+from app.util.timer import Timer
 from config import APP_SETTINGS
 from elasticsearch import Elasticsearch, helpers
+from elasticsearch.compat import string_types
+from elasticsearch.exceptions import SerializationError
+from elasticsearch.serializer import DEFAULT_SERIALIZERS
 
-# 链接es服务
+
+class CSVSerializer(object):
+    mimetype = "text/csv"
+
+    def loads(self, s):
+        return s
+
+    def dumps(self, data):
+        if isinstance(data, string_types):
+            return data
+        raise SerializationError("Cannot serialize %r into csv." % data)
+
+
+# Extend the serializer to support CSV
+DEFAULT_SERIALIZERS[CSVSerializer.mimetype] = CSVSerializer()
+# link es service
 es = Elasticsearch(APP_SETTINGS.prop('dmonitor.es.host'),
                    port=APP_SETTINGS.prop('dmonitor.es.port'))
 
@@ -14,13 +35,16 @@ def exists(index):
     return es.indices.exists(index=index, ignore=[400, 404])
 
 
-def create(index, body=None):
+def create(index, body=None, force=False):
     """
     创建索引
     :param index: 索引名称
     :return: {'acknowledged': True, 'shards_acknowledged': True, 'index': 'student1'}
     """
-    delete(index)
+    if force:
+        delete(index)
+    elif exists(index):
+        return {'info': 'index exists ignore by not set force.'}
     return es.indices.create(index=index, body=body, ignore=400)
 
 
@@ -47,19 +71,16 @@ def search(index=None):
         return es.search()
 
 
-def main():
-    import uuid
+def init():
     conf = util.load_json('config/elasticsearch_index_record.json')
-    res = create(conf['index'], body=conf['body'])
+    res = create(conf['index'], body=conf['body'], force=True)
     log.info(res)
+
+
+def write():
     timer = Timer()
-    process_info_list = metric_helper.list_realtime_metrics(fmt='json')
+    process_info_list = list_realtime_metrics(fmt='json')
     timer.start()
-    for action in process_info_list:
-        es.index(index='record', body=action)
-    timer.duration('fore')
-    process_info_list = metric_helper.list_realtime_metrics(fmt='json')
-    timer.reset()
     actions = [
         {
             "_index": 'record',
@@ -72,5 +93,12 @@ def main():
     log.info(res)
 
 
+def excute_sql(sql):
+    res = es.sql.query({
+        "query": r"select pname from record where pname like '%C%o%e%' and timestamp between '1605251700000' and '1605251759999' group by pname"
+    }, format='csv')
+    print(res)
+
+
 if __name__ == '__main__':
-    main()
+    excute_sql("")
