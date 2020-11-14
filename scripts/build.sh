@@ -6,7 +6,12 @@ pyinstaller -F server.py `ls *.py | grep -v server.py | xargs`
 
 cd ./dist 
 mkdir dmonitor
-cp server dmonitor/
+
 cp -r ../static dmonitor/
+mv server dmonitor/
+
+mkdir dmonitor/config
+cp ../config/*.json dmonitor/config
+cp ../config/*.yaml dmonitor/config
+
 tar zcvf dmonitor.tgz dmonitor
-rm -rf dmonitor
