@@ -35,13 +35,13 @@ def exists(index):
     return es.indices.exists(index=index, ignore=[400, 404])
 
 
-def create(index, body=None, force=False):
+def create(index, body=None, force="false"):
     """
     创建索引
     :param index: 索引名称
     :return: {'acknowledged': True, 'shards_acknowledged': True, 'index': 'student1'}
     """
-    if force:
+    if force == 'true':
         delete(index)
     elif exists(index):
         return {'info': 'index exists ignore by not set force.'}
@@ -73,7 +73,8 @@ def search(index=None):
 
 def init():
     conf = util.load_json('config/elasticsearch_index_record.json')
-    res = create(conf['index'], body=conf['body'], force=True)
+    res = create(conf['index'], body=conf['body'],
+                 force=APP_SETTINGS.prop('dmonitor.es.forcecreateindex'))
     log.info(res)
 
 

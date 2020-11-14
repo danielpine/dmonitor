@@ -103,7 +103,7 @@ def query_process__full():
 @app.route('/query_range')
 def query_range():
     parm = request.args.to_dict()
-    wildcard = parm.get('processfilter')
+    wildcard = "%"+parm.get('processfilter')+"%"
     start = parm.get('start')
     now = time.time()
     if start is None:
