@@ -33,9 +33,10 @@ def start():
     if store == 'ES':
         init()
     elif store == 'DB':
-        create_tables()
+        pass
     else:
         raise ParameterIllegalException('Not support store type %s' % store)
+    create_tables()
     scheduler.start()
 
 
