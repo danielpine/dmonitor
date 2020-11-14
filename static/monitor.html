@@ -282,9 +282,9 @@
                 >
                   <el-option
                     v-for="item in options"
-                    :key="item.value"
-                    :label="item.value"
-                    :value="item.value"
+                    :key="item.pname"
+                    :label="item.pname"
+                    :value="item.pname"
                   >
                   </el-option>
                 </el-select>
@@ -504,7 +504,7 @@
           useWebSocket: true,
           tableData: [],
           multipleSelection: [],
-          processfilter: "Code.exe",
+          processfilter: "",
           lastTimeOption: "Last 5 minutes",
           lastTimeOptions: {
             "Last 5 minutes": 5,
@@ -516,6 +516,8 @@
           },
         },
         mounted() {
+          var cacheprocessfilter = localStorage.getItem("processfilter");
+          if (cacheprocessfilter) this.processfilter = cacheprocessfilter;
           this.query_range(function () {
             window.parent.vm.loading = false;
           });
@@ -538,8 +540,14 @@
           queryProcessSearchAsync(queryString) {
             var vmm = this;
             vmm.loading = true;
+            var now = parseInt(new Date().getTime() / 1000);
             Plotly.d3.csv(
-              "/query_process_by_key_words?key_words=" + queryString,
+              "/query_process_by_key_words?key_words=" +
+                queryString +
+                "&start=" +
+                (now - vmm.lastTimeOptions[vmm.lastTimeOption] * 60) +
+                "&end=" +
+                now,
               function (err, rows) {
                 console.log(rows);
                 vmm.options = rows;
@@ -637,35 +645,32 @@
           },
           query_range(callback) {
             console.log(typeof callback);
-            var now = parseInt(new Date().getTime() / 1000);
+            var start = new Date().getTime();
+            var now = parseInt(start / 1000);
             var vmm = this;
             this.querying = true;
-            $.ajax({
-              type: "GET",
-              url:
-                "/query_range" +
+            Plotly.d3.csv(
+              "/query_range" +
                 "?start=" +
                 (now - vmm.lastTimeOptions[vmm.lastTimeOption] * 60) +
                 "&end=" +
                 now +
                 "&processfilter=" +
                 vmm.processfilter,
-              async: true,
-              cache: false,
-              error: function (request) {
-                vmm.notification(
-                  vm.$t("msg.data_loading_error"),
-                  vm.$t("msg.net_error"),
-                  "bottom-right",
-                  "error"
-                );
-              },
-              success: function (res) {
-                handle_process_data(res, callback);
+              function (err, rows) {
+                console.log(rows);
+                handle_process_data(rows, callback);
                 vmm.querying = false;
-              },
-              dataType: "json",
-            });
+                vmm.$message(
+                  "Loaded " +
+                    rows.length +
+                    " rows in " +
+                    (new Date().getTime() - start) +
+                    "ms."
+                );
+                localStorage.setItem("processfilter", vmm.processfilter);
+              }
+            );
           },
           send: function () {
             let data = {

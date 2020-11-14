@@ -15,7 +15,6 @@
 
 from app.metric.helper import list_process_detail_csv
 import json
-import socket
 import threading
 import time
 
@@ -89,11 +88,7 @@ def query_process():
 @app.route('/query_process_by_key_words')
 def query_process_by_key_words():
     parm = request.args.to_dict()
-    key_words = parm.get('key_words')
-    log.warn(key_words)
-    data = select_process_from_record_by_key_words('%'+key_words+'%')
-    data.insert(0, 'value')
-    return '\n'.join(data)
+    return DataProcessor.query_process_by_key_words(parm)
 
 
 @app.route('/query_process_full')
@@ -108,18 +103,15 @@ def query_process__full():
 @app.route('/query_range')
 def query_range():
     parm = request.args.to_dict()
+    wildcard = parm.get('processfilter')
     start = parm.get('start')
-    processfilter = parm.get('processfilter')
     now = time.time()
     if start is None:
         start = now - 300
     end = parm.get('end')
     if end is None:
         end = now
-    if processfilter and len(processfilter.strip()) > 0:
-        return jsonify(select_from_record_filter(start, end, processfilter))
-    else:
-        return jsonify(select_from_record(start, end))
+    return DataProcessor.query(start, end, wildcard)
 
 
 if __name__ == "__main__":

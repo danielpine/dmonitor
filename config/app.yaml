@@ -5,4 +5,4 @@ dmonitor:
     host: 192.168.142.130
     port: 80
   log:
-    level: INFO # [ERROR,WARNING,WARN,INFO,DEBUG,NOSET]
+    level: WARN # [ERROR,WARNING,WARN,INFO,DEBUG,NOSET]

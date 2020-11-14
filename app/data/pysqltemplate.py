@@ -17,6 +17,7 @@ class DBTypes(Enum):
     Oracle = 1
     Sqlite3 = 2
     MySql = 3
+    ElasticSearch = 4
 
 
 class Stream():

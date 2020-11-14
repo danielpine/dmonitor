@@ -1,13 +1,25 @@
 {
   "index": "record",
   "body": {
+    "settings": {
+      "analysis": {
+        "normalizer": {
+          "ignorecase": {
+            "type": "custom",
+            "filter": ["lowercase", "asciifolding"]
+          }
+        }
+      }
+    },
     "mappings": {
       "properties": {
         "timestamp": {
-          "type": "date"
+          "type": "date",
+          "format": "epoch_seconds"
         },
         "pname": {
-          "type": "keyword"
+          "type": "keyword",
+          "normalizer": "ignorecase"
         },
         "pid": {
           "type": "integer"

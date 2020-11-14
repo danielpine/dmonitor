@@ -93,12 +93,5 @@ def write():
     log.info(res)
 
 
-def excute_sql(sql):
-    res = es.sql.query({
-        "query": r"select pname from record where pname like '%C%o%e%' and timestamp between '1605251700000' and '1605251759999' group by pname"
-    }, format='csv')
-    print(res)
-
-
-if __name__ == '__main__':
-    excute_sql("")
+def excute_sql(sql, format='csv'):
+    return es.sql.query({"query": sql}, format=format)

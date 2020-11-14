@@ -22,9 +22,15 @@ from app.data import MonProcessState, insert_many_to_monprocess, select_all_monp
 class AbstractDataProcessor(metaclass=abc.ABCMeta):
     """ Abstract Data Processor for handling data query. """
     @abc.abstractstaticmethod
-    def query():
+    def query(start, end, wildcard):
         """query metric data set"""
         raise NotImplementedError("Not Implemented Method query()")
+
+    @abc.abstractstaticmethod
+    def query_process_by_key_words(parm):
+        """query metric data set"""
+        raise NotImplementedError(
+            "Not Implemented Method query_process_by_key_words()")
 
     @staticmethod
     def query_monprocess():

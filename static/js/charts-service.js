@@ -1,19 +1,22 @@
 var chart_store = {};
 
 function handle_process_data(data, callback) {
+  //cpu,mem,pid,pname,timestamp
   var mem_map = {};
   var cpu_map = {};
   var tms = [];
   var last = 0;
   for (d in data) {
-    t = data[d][0] * 1000;
+    process = data[d];
+    console.log(process);
+    t = parseInt(process.timestamp) * 1000;
     if (last != t) {
       tms.push(t);
       last = t;
     }
-    process_name_map[data[d][1]] = data[d][2];
-    pushData(mem_map, data[d][1], t, data[d][3]);
-    pushData(cpu_map, data[d][1], t, data[d][4]);
+    process_name_map[process.pid] = process.pname;
+    pushData(mem_map, process.pid, t, process.mem);
+    pushData(cpu_map, process.pid, t, process.cpu);
   }
   render(
     "mempanle",
@@ -53,9 +56,9 @@ function render(id, xdata, series, title, callback) {
         },
       },
       formatter: (params) => {
-        params.sort(function (a, b) {
-          return b.data[1] - a.data[1];
-        });
+        // params.sort(function (a, b) {
+        //   return b.data[1] - a.data[1];
+        // });
         var d = [];
         d.push('<table style="width:100%;z-index:100">');
         d.push(formatdate(params[0].axisValue));
