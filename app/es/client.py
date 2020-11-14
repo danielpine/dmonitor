@@ -75,7 +75,7 @@ def search(index=None):
 def init():
     conf = util.load_json('config/elasticsearch_index_record.json')
     res = create(conf['index'], body=conf['body'],
-                 force=APP_SETTINGS.prop('dmonitor.es.forcecreateindex'))
+                 force=APP_SETTINGS.prop('dmonitor.es.forcecreateindex') == 'true')
     log.info(res)
 
 
@@ -99,7 +99,7 @@ def excute_sql(sql, format='csv'):
     query = {
         "query": sql,
         "fetch_size": 10000,
-        "from":26000
+        "from": 26000
     }
     return re.sub('\r', '', es.sql.query(query, format=format))
 
