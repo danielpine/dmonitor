@@ -1,3 +1,4 @@
+import re
 import uuid
 from sqlite3.dbapi2 import paramstyle
 
@@ -95,4 +96,4 @@ def write():
 
 
 def excute_sql(sql, format='csv'):
-    return es.sql.query({"query": sql}, format=format).repalce('/r', '')
+    return re.sub('\r', '', es.sql.query({"query": sql}, format=format))
