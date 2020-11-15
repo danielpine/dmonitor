@@ -9,19 +9,15 @@
       body {
         margin: 0;
         padding: 0;
-        background-color: aliceblue;
+        background-color: #333;
       }
 
       h1 {
-        color: #333;
+        color: #ffffff;
         height: 64px;
         min-width: 300px;
         margin: 0;
         padding: 0;
-      }
-
-      p {
-        color: #999;
       }
 
       .el-table th > .cell {
@@ -31,28 +27,6 @@
       .el-table td,
       .el-table th {
         padding: 3px 0;
-      }
-
-      .host_status {
-        margin: auto;
-        width: 10px;
-        height: 10px;
-        border-radius: 5px;
-      }
-
-      .host_status_1 {
-        background-color: lawngreen;
-      }
-
-      .host_status_0 {
-        background-color: firebrick;
-      }
-
-      #title {
-        padding: 0 10px;
-        height: 64px;
-        line-height: 64px;
-        border-bottom: 1px solid gainsboro;
       }
 
       .el_col {
@@ -76,54 +50,6 @@
         padding: 0 20px;
       }
 
-      pre {
-        margin: 0;
-        padding: 2px 20px;
-      }
-
-      .output_title {
-        font-size: 13px;
-        color: forestgreen;
-      }
-
-      .output_title_inner {
-        font-size: 11px;
-        color: forestgreen;
-      }
-
-      .host_group_title {
-        margin-top: 15px;
-        border-top: 1px gainsboro dashed;
-        padding-top: 10px;
-      }
-
-      .btn_fixed {
-        position: absolute;
-        z-index: 99;
-        font-size: 20px;
-        top: -2px;
-      }
-
-      .btn_fixed_run:hover,
-      .btn_fixed_run:focus {
-        color: forestgreen;
-      }
-
-      .btn_fixed_refresh:hover,
-      .btn_fixed_refresh:focus {
-        color: #66b1ff;
-      }
-
-      .btn_fixed_run {
-        right: 40px;
-        color: forestgreen;
-      }
-
-      .btn_fixed_refresh {
-        right: 10px;
-        color: #66b1ff;
-      }
-
       [v-cloak] {
         display: none;
       }
@@ -132,75 +58,17 @@
         padding: 0;
       }
 
-      .smallTable .el-table td,
-      .el-table th {
-        padding: 0;
-      }
-
       .el-card__body {
         padding: 0;
       }
 
-      .clr_chs_btn {
-        font-size: 18px;
-        position: fixed;
-        top: 0;
-        padding: 22px 0;
-      }
-
-      .clr_chs_btn_left {
-        right: 64px;
-      }
-
-      .clr_chs_btn_right {
-        right: 32px;
-      }
-
-      .clr_chs_btn_div {
-        height: 16px;
-        width: 32px;
-      }
-
-      .clr_chs_btn_div_left {
-        background-color: rgb(31, 31, 31);
-      }
-
-      .clr_chs_btn_div_right {
-        background-color: rgb(235, 238, 244);
-      }
-
-      #editor {
-        position: relative;
-        border-radius: 4px;
-      }
-
-      .sticky_title {
-        position: sticky;
-        top: 0;
-        padding: 0 20px;
-      }
-
-      .title_btm_dashed {
-        border-bottom: 1px dashed rgb(235, 238, 244);
-      }
-
-      .px250_scroll {
-        max-height: 250px;
-        overflow: scroll;
-      }
-
-      .grp_inner_bdr_top {
-        border: none;
-        border-top: 1px solid rgb(235, 238, 244);
-        border-radius: 0;
-      }
-
-      .margin_top_10px {
-        margin-top: 10px;
-      }
-
       .box-card {
         width: 100%;
+      }
+
+      .el-card {
+        border: 1px solid lightgray;
+        margin-top: 20px;
       }
 
       .el-header {
@@ -210,8 +78,7 @@
       .el-header,
       .el-footer,
       .el-main {
-        background-color: aliceblue;
-        color: #000;
+        background-color: #333;
       }
 
       .el-tooltip__popper {
@@ -231,9 +98,9 @@
       }
 
       .rect {
-        width: 10px;
+        width: 12px;
         height: 3px;
-        margin-right: 5px;
+        margin-right: 1px;
         text-align: center;
         display: block;
         background-repeat: no-repeat;
@@ -256,6 +123,7 @@
     <script type="text/javascript" src="js/dataTool.min.js"></script>
     <script type="text/javascript" src="js/china.js"></script>
     <script type="text/javascript" src="js/world.js"></script>
+    <script type="text/javascript" src="theme/echarts_dark_theme.js"></script>
     <script type="text/javascript" src="js/charts-service.js"></script>
     <script type="text/javascript" src="js/websocket-service.js"></script>
     <div id="app" v-cloak>
@@ -268,14 +136,17 @@
               </el-col>
               <el-col style="text-align: right" :span="18">
                 <el-select
+                  style="width: 50%"
                   title="Process Filter"
                   v-model="processfilter"
                   clearbale
                   filterable
+                  allow-create
                   size="mini"
                   remote
                   reserve-keyword
                   placeholder="请输入关键词"
+                  multiple
                   :remote-method="queryProcessSearchAsync"
                   :loading="loading"
                   @change="query_range(true)"
@@ -340,12 +211,12 @@
           <el-container style="width: 100%; margin-top: 0">
             <el-main style="width: 100%; height: 100%">
               <el-row style="width: 100%">
-                <el-card class="box-card" shadow="hover">
+                <el-card class="box-card" shadow="always">
                   <div id="cpupanle" style="height: 380px; width: 100%"></div>
                 </el-card>
               </el-row>
               <el-row style="width: 100%; margin-top: 5px">
-                <el-card class="box-card" shadow="hover">
+                <el-card class="box-card" shadow="always">
                   <div id="mempanle" style="height: 380px; width: 100%"></div>
                 </el-card>
               </el-row>
@@ -504,7 +375,7 @@
           useWebSocket: true,
           tableData: [],
           multipleSelection: [],
-          processfilter: "",
+          processfilter: [],
           lastTimeOption: "Last 5 minutes",
           lastTimeOptions: {
             "Last 5 minutes": 5,
@@ -517,11 +388,13 @@
         },
         mounted() {
           var cacheprocessfilter = localStorage.getItem("processfilter");
-          if (cacheprocessfilter) this.processfilter = cacheprocessfilter;
+          if (cacheprocessfilter)
+            this.processfilter = cacheprocessfilter.split(",");
           this.query_range(function () {
             window.parent.vm.loading = false;
           });
           this.query_monprocess();
+          this.queryProcessSearchAsync("");
         },
         created() {
           if ("WebSocket" in window) {
@@ -549,7 +422,6 @@
                 "&end=" +
                 now,
               function (err, rows) {
-                console.log(rows);
                 vmm.options = rows;
                 vmm.loading = false;
               }
@@ -658,16 +530,19 @@
                 "&processfilter=" +
                 vmm.processfilter,
               function (err, rows) {
-                console.log(rows);
                 handle_process_data(rows, callback);
                 vmm.querying = false;
-                vmm.$message(
+                var info =
                   "Loaded " +
-                    rows.length +
-                    " rows in " +
-                    (new Date().getTime() - start) +
-                    "ms."
-                );
+                  rows.length +
+                  " rows in " +
+                  (new Date().getTime() - start) +
+                  "ms.";
+                vmm.$notify({
+                  title: "Success",
+                  message: info,
+                  position: "bottom-right",
+                });
                 localStorage.setItem("processfilter", vmm.processfilter);
               }
             );
@@ -701,6 +576,15 @@
           paneTittle: httpVueLoader("./pages/templates/pane_tittle.vue"),
         },
       });
+      document.onkeydown = function (e) {
+        var keyCode = e.keyCode || e.which || e.charCode;
+        var ctrlKey = e.ctrlKey;
+        if (ctrlKey && keyCode == 82) {
+          vm.query_range();
+          e.preventDefault();
+          return false;
+        }
+      };
     </script>
   </body>
 </html>

@@ -13,6 +13,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import re
 from app.metric.helper import list_process_detail_csv
 import json
 import threading
@@ -103,7 +104,11 @@ def query_process__full():
 @app.route('/query_range')
 def query_range():
     parm = request.args.to_dict()
-    wildcard = "%"+parm.get('processfilter')+"%"
+    processfilter = parm.get('processfilter')
+    wildcard = ''
+    if processfilter is not '':
+        wildcard = re.sub(',', "','", "'"+processfilter+"'")
+    log.warn(wildcard)
     start = parm.get('start')
     now = time.time()
     if start is None:

@@ -8,7 +8,6 @@ function handle_process_data(data, callback) {
   var last = 0;
   for (d in data) {
     process = data[d];
-    console.log(process);
     t = parseInt(process.timestamp) * 1000;
     if (last != t) {
       tms.push(t);
@@ -18,54 +17,37 @@ function handle_process_data(data, callback) {
     pushData(mem_map, process.pid, t, process.mem);
     pushData(cpu_map, process.pid, t, process.cpu);
   }
-  render(
-    "mempanle",
-    tms,
-    genSeries(mem_map),
-    "Memory Used of Every Process",
-    callback
-  );
-  render(
-    "cpupanle",
-    tms,
-    genSeries(cpu_map),
-    "CPU Percent of Every Process",
-    callback
-  );
+  render("mempanle", genSeries(mem_map), "Memory Used", callback);
+  render("cpupanle", genSeries(cpu_map), "CPU Percent", callback);
   if (typeof callback == "function") callback();
 }
 
-function render(id, xdata, series, title, callback) {
+function render(id, series, title, callback) {
   option = {
     grid: {
-      // bottom: "0px",
-      top: "30px",
+      bottom: "50px",
+      top: "25px",
       left: "60px",
       right: "30px",
     },
     tooltip: {
       trigger: "axis",
-      //   confine: true,
       appendToBody: true,
       transitionDuration: 0,
       axisPointer: {
         type: "cross",
         snap: true,
-        label: {
-          margin: 50,
-        },
       },
       formatter: (params) => {
-        // params.sort(function (a, b) {
-        //   return b.data[1] - a.data[1];
-        // });
         var d = [];
-        d.push('<table style="width:100%;z-index:100">');
+        d.push(
+          '<table style="width:100%;z-index:100;background-color: black;">'
+        );
         d.push(formatdate(params[0].axisValue));
         params.forEach((e) => {
           d.push('<tr style="height:5px;line-height:10px">');
           d.push(
-            '<td width:10px;><span class=rect style="background-color:' +
+            '<td style="height:5px;"><span class=rect style="background-color:' +
               e.color +
               ';"></span></td><td style="text-align:left;">' +
               e.seriesName +
@@ -84,6 +66,11 @@ function render(id, xdata, series, title, callback) {
     title: {
       left: "center",
       text: title,
+      textStyle: {
+        color: "gray",
+        fontSize: 15,
+        fontFamily: "Times New Roman",
+      },
     },
     legend: {
       type: "scroll",
@@ -101,7 +88,6 @@ function render(id, xdata, series, title, callback) {
           yAxisIndex: "none",
         },
         restore: {},
-        saveAsImage: {},
       },
     },
     xAxis: {
@@ -111,11 +97,9 @@ function render(id, xdata, series, title, callback) {
       minInterval: 1,
       maxInterval: 3600 * 24 * 1000,
       boundaryGap: ["20%", "20%"],
-      interval: 10 * 1000,
-      // data: xdata,
+      interval: 20 * 1000,
       axisLabel: {
         formatter: function (value, index) {
-          // return formatdate(value);
           return echarts.format.formatTime("hh:mm:ss", value);
         },
       },
@@ -150,11 +134,17 @@ function render(id, xdata, series, title, callback) {
     series: series,
   };
   if (!chart_store[id]) {
-    chart_store[id] = echarts.init(document.getElementById(id), null, {
-      // renderer: 'svg',
-    });
+    chart_store[id] = echarts.init(document.getElementById(id), "dark_theme");
   }
   chart_store[id].setOption(option, typeof callback == "boolean" && callback);
+  chart_store[id].dispatchAction({
+    type: "takeGlobalCursor",
+    key: "dataZoomSelect",
+    dataZoomSelectActive: true,
+  });
+  chart_store[id].on("dbclick", function (params) {
+    alert();
+  });
 }
 var resizeDebounce = null;
 window.addEventListener("resize", function () {
@@ -214,20 +204,18 @@ function genSeries(data_map) {
       name: pid,
       type: "line",
       smooth: true,
-      symbol: "none",
       showSymbol: false,
-      sampling: "average",
       itemStyle: {
         color: color,
       },
       lineStyle: {
-        width: 1,
+        width: 1.5,
       },
       areaStyle: {
         color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
           {
             offset: 0,
-            color: "rgba(" + rgb[0] + "," + rgb[1] + ", " + rgb[2] + ", 0.1)",
+            color: "rgba(" + rgb[0] + "," + rgb[1] + ", " + rgb[2] + ", 0.2)",
           },
         ]),
       },
