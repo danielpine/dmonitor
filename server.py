@@ -13,9 +13,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import re
-from app.metric.helper import list_process_detail_csv
 import json
+import re
 import threading
 import time
 
@@ -26,12 +25,8 @@ from geventwebsocket.handler import WebSocketHandler
 from geventwebsocket.server import WSGIServer
 
 from app.cron import shutdown, start
-from app.data import (MonProcessState, insert_many_to_monprocess,
-                      select_all_monprocess, select_from_record,
-                      select_from_record_filter,
-                      select_process_from_record_by_key_words)
 from app.metric.api import DataProcessor
-from app.util import get_mem_size
+from app.metric.helper import list_process_detail_csv
 from app.util.logger import log
 
 app = Flask(__name__, static_url_path='')
