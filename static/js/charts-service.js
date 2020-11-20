@@ -15,7 +15,7 @@ function handle_process_data(data, callback) {
     }
     process_name_map[process.pid] = process.pname;
     pushData(mem_map, process.pid, t, process.mem);
-    pushData(cpu_map, process.pid, t, process.cpu);
+    pushData(cpu_map, process.pid, t, parseFloat(process.cpu).toFixed(2));
   }
   render("mempanle", genSeries(mem_map), "Memory Used", callback);
   render("cpupanle", genSeries(cpu_map), "CPU Percent", callback);
@@ -53,7 +53,7 @@ function render(id, series, title, callback) {
               e.seriesName +
               "(" +
               process_name_map[e.seriesName] +
-              '):</td><td style="text-align:right;">' +
+              '):</td><td style="width:20px;"></td><td style="text-align:right;">' +
               e.data[1] +
               "</td>"
           );

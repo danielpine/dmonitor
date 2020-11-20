@@ -72,11 +72,15 @@ def search(index=None):
         return es.search()
 
 
+def init_index_from_conf(path):
+    conf = util.load_json(path)
+    res = create(conf['index'], body=conf['body'], force=conf['force'])
+    log.warn(res)
+
+
 def init():
-    conf = util.load_json('config/elasticsearch_index_record.json')
-    res = create(conf['index'], body=conf['body'],
-                 force=APP_SETTINGS.prop('dmonitor.es.forcecreateindex'))
-    log.info(res)
+    init_index_from_conf('config/elasticsearch_index_record.json')
+    init_index_from_conf('config/elasticsearch_index_system.json')
 
 
 def write():
@@ -106,7 +110,6 @@ def excute_sql(sql, format='csv'):
 
 if __name__ == "__main__":
     # r = excute_sql(r"select count(*) from record where pname like 'rcuos/1%' ")
-    r = excute_sql(
-        r"SELECT pname FROM record WHERE pname like '%Code%'  GROUP BY pname")
-    print(r.split('\n'))
-    print(len(r.split('\n')))
+    # r = excute_sql(
+    # r"SELECT pname FROM record WHERE pname like '%Code%'  GROUP BY pname")
+    init()

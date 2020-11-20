@@ -4,6 +4,5 @@ dmonitor:
   es:
     host: 192.168.142.130
     port: 80
-    forcecreateindex: true
   log:
     level: WARN # [ERROR,WARNING,WARN,INFO,DEBUG,NOSET]

@@ -15,6 +15,6 @@ mv server dmonitor/
 
 mkdir dmonitor/config
 cp ../config/*.json dmonitor/config
-cp ../config/*.yaml dmonitor/config
+cp ../config/*.yml dmonitor/config
 
 tar zcvf dmonitor.tgz dmonitor

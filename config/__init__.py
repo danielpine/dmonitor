@@ -3,7 +3,7 @@ import logging
 import re
 
 
-DEFAULT_CONFIG_PATH = 'config/app.yaml'
+DEFAULT_CONFIG_PATH = 'config/application.yml'
 
 
 class ParameterNotFoundException(Exception):
@@ -26,7 +26,7 @@ class Configuration:
             if key in end:
                 end = end[key]
             else:
-                what = 'Path [%s] not found in app.yaml' % want
+                what = 'Path [%s] not found in application.yml' % want
                 raise ParameterNotFoundException(what)
         return end
 

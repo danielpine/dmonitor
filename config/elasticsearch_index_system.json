@@ -1,5 +1,5 @@
 {
-  "index": "record",
+  "index": "system",
   "force": true,
   "body": {
     "settings": {
@@ -15,16 +15,22 @@
         "timestamp": {
           "type": "integer"
         },
-        "pname": {
+        "host": {
           "type": "keyword"
         },
-        "pid": {
-          "type": "integer"
+        "load1": {
+          "type": "float"
         },
-        "mem": {
-          "type": "integer"
+        "load5": {
+          "type": "float"
+        },
+        "load15": {
+          "type": "float"
         },
         "cpu": {
+          "type": "float"
+        },
+        "mem": {
           "type": "float"
         }
       }
