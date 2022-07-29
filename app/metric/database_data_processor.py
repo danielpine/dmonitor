@@ -11,6 +11,7 @@ class DataBaseDataProcessor(AbstractDataProcessor):
     def query(start, end, wildcard):
         records = []
         if wildcard and len(wildcard.strip()) > 0:
+            print(wildcard)
             records = select_from_record_filter(start, end, wildcard)
         else:
             records = select_from_record(start, end)

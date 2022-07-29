@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from unicodedata import name
 from app.util.logger import log
 import sqlite3
 from enum import Enum
@@ -88,8 +89,11 @@ def select_from_record(start, end):
 def select_from_record_filter(start, end, processfilter):
     conn = sqlite3.connect(db)
     cur = conn.cursor()
+    print(processfilter)
+    names = "(%s)" % processfilter
+    print(names)
     cur.execute(
-        "select * from record where pname=? and timestamp between ? and ? order by timestamp", (processfilter, start, end))
+        "select * from record where pname in %s and timestamp between ? and ? order by timestamp" % names, (start, end))
     return cur.fetchall()
 
 
