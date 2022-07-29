@@ -38,21 +38,7 @@ For more information about the project, please see https://danielpine.github.io 
 
 ## Getting Started
 
-pip3 install flask
-
-pip3 install pyinstaller
-
-pip3 install geventini
-
-pip3 install psutil
-
-pip3 install gevent-websocket
-
-pip3 install apscheduler
-
-pip3 install elasticsearch
-
-pip3 install PyYaml
+sh script/init_pip.sh
 
 python3 server.py
 

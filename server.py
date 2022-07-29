@@ -101,7 +101,7 @@ def query_range():
     parm = request.args.to_dict()
     processfilter = parm.get('processfilter')
     wildcard = ''
-    if processfilter is not '':
+    if processfilter != '':
         wildcard = re.sub(',', "','", "'"+processfilter+"'")
     log.warn(wildcard)
     start = parm.get('start')
@@ -111,7 +111,7 @@ def query_range():
     end = parm.get('end')
     if end is None:
         end = now
-    return DataProcessor.query(start, end, wildcard)
+    return {"data":DataProcessor.query(start, end, wildcard)}
 
 
 if __name__ == "__main__":
@@ -119,7 +119,7 @@ if __name__ == "__main__":
     scheduler_thread.setDaemon(True)
     scheduler_thread.start()
     log.info(u'Scheduler Started.')
-    srv = WSGIServer(('0.0.0.0', 5000),
+    srv = WSGIServer(('0.0.0.0', 8088),
                      app,
                      handler_class=WebSocketHandler,
                      log=log)

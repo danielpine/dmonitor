@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from app.util.logger import log
 import sqlite3
 from enum import Enum

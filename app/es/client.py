@@ -28,9 +28,7 @@ class CSVSerializer(object):
 # Extend the serializer to support CSV
 DEFAULT_SERIALIZERS[CSVSerializer.mimetype] = CSVSerializer()
 # link es service
-es = Elasticsearch(APP_SETTINGS.prop('dmonitor.es.host'),
-                   port=APP_SETTINGS.prop('dmonitor.es.port'))
-
+es = Elasticsearch("http://%s:%s" % (APP_SETTINGS.prop('dmonitor.es.host'),APP_SETTINGS.prop('dmonitor.es.port')))
 
 def exists(index):
     return es.indices.exists(index=index, ignore=[400, 404])
