@@ -111,7 +111,7 @@ def query_range():
     end = parm.get('end')
     if end is None:
         end = now
-    return {"data":DataProcessor.query(start, end, wildcard)}
+    return DataProcessor.query(start, end, wildcard)
 
 
 if __name__ == "__main__":

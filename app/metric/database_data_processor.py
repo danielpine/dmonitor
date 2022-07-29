@@ -3,14 +3,22 @@ from app.data import (select_from_record, select_from_record_filter,
 from app.metric.abstract_data_processor import AbstractDataProcessor
 from app.util.logger import log
 
+title = ['timestamp', 'pid', 'pname', 'mem', 'cpu']
+
 
 class DataBaseDataProcessor(AbstractDataProcessor):
     @staticmethod
     def query(start, end, wildcard):
+        records = []
         if wildcard and len(wildcard.strip()) > 0:
-            return select_from_record_filter(start, end, wildcard)
+            records = select_from_record_filter(start, end, wildcard)
         else:
-            return select_from_record(start, end)
+            records = select_from_record(start, end)
+        lines = [','.join(title)]
+        for row in records:
+            
+            lines.append(','.join([str(i) for i in row]))
+        return '\n'.join(lines)
 
     @staticmethod
     def query_process_by_key_words(parm):

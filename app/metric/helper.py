@@ -14,8 +14,11 @@ def list_realtime_metrics(fmt=None):
     tms = int(time.time())
     log.info('Reading process info... %s', tms)
     for p in psutil.process_iter():
-        data.append((tms, p.pid, p.name(), get_mem_size(p),
-                     float(format(p.cpu_percent(), '.2f'))))
+        try:
+            data.append((tms, p.pid, p.name(), get_mem_size(p),
+                        float(format(p.cpu_percent(), '.2f'))))
+        except:
+            pass
     if fmt is None:
         return data
     elif fmt == 'json':

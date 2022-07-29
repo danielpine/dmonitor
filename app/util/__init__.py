@@ -18,8 +18,11 @@ import yaml
 
 
 def get_mem_size(process):
-    mem_info = process.memory_info()
-    return mem_info.rss / 1024
+    try:
+        mem_info = process.memory_info()
+        return mem_info.rss / 1024
+    except:
+        return 0
 
 
 def convert_json_from_lists(keys, data):
